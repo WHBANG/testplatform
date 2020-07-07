@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
-	"os"
 	"runtime"
 
 	"git.supremind.info/testplatform/biz/analyzerclient"
@@ -14,17 +13,13 @@ import (
 	"git.supremind.info/testplatform/biz/service/db"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
 )
 
 type Config struct {
 	Host        string                      `json:"host"`
 	AtomClient  atomclient.AtomClientConfig `json:"atom_client"`
 	ConfigFiles map[string]string           `json:"config_files"`
-	Mongodb     struct {
-		Host string `json:"host"`
-		DB   string `json:"db"`
-	} `json:"mongodb"`
+	Mongodb     db.MongodbConfig            `json:"mongodb"`
 }
 
 func main() {
@@ -38,7 +33,6 @@ func main() {
 	configData, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Panicf("config file read err: %s ", err)
-		os.Exit(-1)
 	}
 	log.Infof("config load, %s", string(configData))
 
@@ -46,8 +40,6 @@ func main() {
 	err = json.Unmarshal(configData, &conf)
 	if err != nil {
 		log.Panicf("config unmarshal err: %s ", err)
-
-		os.Exit(-1)
 	}
 	fileMap := make(map[string]string)
 	for k, v := range conf.ConfigFiles {
@@ -58,16 +50,12 @@ func main() {
 		fileMap[k] = string(data)
 	}
 
-	session, err := mgo.Dial(conf.Mongodb.Host)
+	err = db.InitDB(&conf.Mongodb)
 	if err != nil {
-		log.Panicf("mongo dial error:%s ", err)
+		log.Panic(err)
 	}
+	session, _ := db.GetMgoDBSession()
 	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	imageMgnt, err := db.NewMongoImage(session.DB(conf.Mongodb.DB))
-	if err != nil {
-		log.Panicf("NewMongoImage error:%s ", err)
-	}
 
 	atomC, err := atomclient.NewAtomClient(conf.AtomClient)
 	if err != nil {
@@ -75,18 +63,23 @@ func main() {
 	}
 	defer atomC.Close()
 
-	analyzerPlat, err := analyzerclient.NewAnalyzerClient(context.Background(), atomC)
+	analyzerC, err := analyzerclient.NewAnalyzerClient(context.Background(), atomC)
 	if err != nil {
 		log.Panicf("NewAtomClient  err: %s ", err)
 	}
-	log.Println(analyzerPlat)
+	log.Println(analyzerC)
 
 	r := gin.Default()
 	group := r.Group("v1")
 
-	_, err = service.NewTestPlatformSvc(context.Background(), &service.Config{}, group, imageMgnt)
+	_, err = service.NewTestPlatformSvc(context.Background(), &service.Config{}, group)
 	if err != nil {
 		log.Panicf("NewTestPlatformSvc err: %s ", err)
+	}
+
+	_, err = service.NewTestSvc(context.Background(), group, analyzerC)
+	if err != nil {
+		log.Panicf("NewTestSvc err: %s ", err)
 	}
 
 	err = r.Run(conf.Host)

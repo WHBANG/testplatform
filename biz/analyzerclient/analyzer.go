@@ -37,7 +37,7 @@ type AnalyzerInterface interface {
 	Status(info *JobInfo) error
 }
 
-func NewAnalyzerClient(ctx context.Context, atomC *atomclient.AtomClient) (*AnalyzerClient, error) {
+func NewAnalyzerClient(ctx context.Context, atomC *atomclient.AtomClient) (AnalyzerInterface, error) {
 	c := &AnalyzerClient{
 		atomC: atomC,
 	}

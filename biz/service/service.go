@@ -15,7 +15,15 @@ type TestPlatformSvc struct {
 	imageMgnt db.ImageMgnt
 }
 
-func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGroup, imageMgnt db.ImageMgnt) (*TestPlatformSvc, error) {
+func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGroup) (*TestPlatformSvc, error) {
+	dbConn, err := db.GetMgoDB()
+	if err != nil {
+		return nil, err
+	}
+	imageMgnt, err := db.NewMongoImage(dbConn)
+	if err != nil {
+		return nil, err
+	}
 	svc := &TestPlatformSvc{
 		config:    config,
 		imageMgnt: imageMgnt,

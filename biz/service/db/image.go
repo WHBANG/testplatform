@@ -26,7 +26,7 @@ func NewMongoImage(dbc *mgo.Database) (ImageMgnt, error) {
 	img := &MongoImage{
 		image: dbc.C(imageCollName),
 	}
-	img.image.EnsureIndexKey("image", "user_id", "product", "status")
+	img.image.EnsureIndexKey("image", "user_id", "product", "status", "created_at")
 
 	return img, nil
 }

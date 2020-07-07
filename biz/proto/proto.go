@@ -32,6 +32,7 @@ type TestCaseInfo struct {
 }
 
 const (
+	EngineStatusNone     = "NONE"
 	EngineStatusStarting = "STARTING" //启动中
 	EngineStatusWaiting  = "WAITING"
 	EngineStatusRunning  = "RUNNING"

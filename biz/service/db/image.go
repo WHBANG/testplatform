@@ -19,19 +19,26 @@ type ImageMgnt interface {
 }
 
 type MongoImage struct {
-	image *mgo.Collection
+	collName string
+	DB       string
+	session  *mgo.Session
 }
 
-func NewMongoImage(dbc *mgo.Database) (ImageMgnt, error) {
+func NewMongoImage(s *mgo.Session, db string) (ImageMgnt, error) {
 	img := &MongoImage{
-		image: dbc.C(imageCollName),
+		session:  s,
+		DB:       db,
+		collName: imageCollName,
 	}
-	img.image.EnsureIndexKey("image", "user_id", "product", "status", "created_at")
-
+	s.DB(db).C(imageCollName).EnsureIndexKey("image", "user_id", "product", "status", "created_at")
 	return img, nil
 }
 
 func (d *MongoImage) Insert(image *proto.ImageInfo) (*proto.ImageInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(imageCollName)
+
 	if image.ID == "" {
 		image.ID = bson.NewObjectId()
 	}
@@ -39,17 +46,21 @@ func (d *MongoImage) Insert(image *proto.ImageInfo) (*proto.ImageInfo, error) {
 	image.CreatedAt = now
 	image.UpdatedAt = now
 
-	err := d.image.Insert(*image)
+	err := c.Insert(*image)
 	if err != nil {
 		log.Error("insert error:", err)
 	}
 	return image, err
 }
 func (d *MongoImage) Update(id bson.ObjectId, updateInfo map[string]interface{}) (*proto.ImageInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(imageCollName)
+
 	now := time.Now()
 	updateInfo["updated_at"] = now
 
-	err := d.image.UpdateId(id, map[string]interface{}{
+	err := c.UpdateId(id, map[string]interface{}{
 		"$set": updateInfo,
 	})
 	if err != nil {
@@ -57,6 +68,6 @@ func (d *MongoImage) Update(id bson.ObjectId, updateInfo map[string]interface{})
 		return nil, err
 	}
 	image := &proto.ImageInfo{}
-	err = d.image.FindId(id).One(image)
+	err = c.FindId(id).One(image)
 	return image, err
 }

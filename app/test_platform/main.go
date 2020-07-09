@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"runtime"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"git.supremind.info/testplatform/biz/analyzerclient"
 	"git.supremind.info/testplatform/biz/atomclient"
 	"git.supremind.info/testplatform/biz/service"
@@ -17,12 +20,16 @@ import (
 
 type Config struct {
 	Host        string                      `json:"host"`
+	Mode        string                      `json:"mode"`
 	AtomClient  atomclient.AtomClientConfig `json:"atom_client"`
 	ConfigFiles map[string]string           `json:"config_files"`
 	Mongodb     db.MongodbConfig            `json:"mongodb"`
 }
 
 func main() {
+	go func() {
+		log.Println(http.ListenAndServe(":6060", nil))
+	}()
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -41,6 +48,10 @@ func main() {
 	if err != nil {
 		log.Panicf("config unmarshal err: %s ", err)
 	}
+	if conf.Mode == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	fileMap := make(map[string]string)
 	for k, v := range conf.ConfigFiles {
 		data, err := ioutil.ReadFile(v)
@@ -77,9 +88,9 @@ func main() {
 		log.Panicf("NewTestPlatformSvc err: %s ", err)
 	}
 
-	_, err = service.NewTestSvc(context.Background(), group, analyzerC)
+	_, err = service.NewEngineTestSvc(context.Background(), group, analyzerC, fileMap)
 	if err != nil {
-		log.Panicf("NewTestSvc err: %s ", err)
+		log.Panicf("NewEngineTestSvc err: %s ", err)
 	}
 
 	err = r.Run(conf.Host)

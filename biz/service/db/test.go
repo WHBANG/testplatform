@@ -18,21 +18,30 @@ type TestMgnt interface {
 }
 
 type MongoTest struct {
-	engine     *mgo.Collection
-	engineTest *mgo.Collection
+	DB                 string
+	session            *mgo.Session
+	engineCollName     string
+	engineTestCollName string
 }
 
-func NewMongoTest(dbc *mgo.Database) (TestMgnt, error) {
+func NewMongoTest(s *mgo.Session, db string) (TestMgnt, error) {
+
 	c := &MongoTest{
-		engine:     dbc.C("engine"),
-		engineTest: dbc.C("engine_test"),
+		DB:                 db,
+		session:            s,
+		engineCollName:     "engine",
+		engineTestCollName: "engine_test",
 	}
-	c.engine.EnsureIndexKey("image", "user_id", "product", "status", "created_at")
-	c.engineTest.EnsureIndexKey("engine_id", "user_id", "product", "test_status", "created_at")
+	s.DB(db).C(c.engineCollName).EnsureIndexKey("image", "user_id", "product", "status", "created_at")
+	s.DB(db).C(c.engineTestCollName).EnsureIndexKey("engine_id", "user_id", "product", "test_status", "created_at")
 	return c, nil
 }
 
-func (c *MongoTest) CreateEngine(info *bproto.EngineDeployInfo) (*bproto.EngineDeployInfo, error) {
+func (d *MongoTest) CreateEngine(info *bproto.EngineDeployInfo) (*bproto.EngineDeployInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(imageCollName)
+
 	if info.ID == "" {
 		info.ID = bson.NewObjectId()
 	}
@@ -40,18 +49,22 @@ func (c *MongoTest) CreateEngine(info *bproto.EngineDeployInfo) (*bproto.EngineD
 	info.CreatedAt = now
 	info.UpdatedAt = now
 
-	err := c.engine.Insert(*info)
+	err := c.Insert(*info)
 	if err != nil {
 		log.Error("insert error:", err)
 	}
 
 	return info, nil
 }
-func (c *MongoTest) UpdateEngine(id bson.ObjectId, updateInfo bson.M) (*bproto.EngineDeployInfo, error) {
+func (d *MongoTest) UpdateEngine(id bson.ObjectId, updateInfo bson.M) (*bproto.EngineDeployInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(imageCollName)
+
 	now := time.Now()
 	updateInfo["updated_at"] = now
 
-	err := c.engine.UpdateId(id, map[string]interface{}{
+	err := c.UpdateId(id, map[string]interface{}{
 		"$set": updateInfo,
 	})
 	if err != nil {
@@ -59,30 +72,42 @@ func (c *MongoTest) UpdateEngine(id bson.ObjectId, updateInfo bson.M) (*bproto.E
 		return nil, err
 	}
 	info := &bproto.EngineDeployInfo{}
-	err = c.engine.FindId(id).One(info)
+	err = c.FindId(id).One(info)
 	return info, err
 }
 
-func (c *MongoTest) RemoveEngine(id bson.ObjectId) error {
+func (d *MongoTest) RemoveEngine(id bson.ObjectId) error {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(d.engineCollName)
+
 	//todo check engine status
-	err := c.engine.RemoveId(id)
+	err := c.RemoveId(id)
 	return err
 
 }
-func (c *MongoTest) GetEngineOne(id bson.ObjectId) (*bproto.EngineDeployInfo, error) {
+func (d *MongoTest) GetEngineOne(id bson.ObjectId) (*bproto.EngineDeployInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(d.engineCollName)
+
 	info := &bproto.EngineDeployInfo{}
-	err := c.engine.FindId(id).One(info)
+	err := c.FindId(id).One(info)
 	return info, err
 
 }
-func (c *MongoTest) GetEngine(query bson.M, page int, size int) ([]bproto.EngineDeployInfo, int, error) {
+func (d *MongoTest) GetEngine(query bson.M, page int, size int) ([]bproto.EngineDeployInfo, int, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(d.engineCollName)
+
 	list := make([]bproto.EngineDeployInfo, size)
-	err := c.engine.Find(query).Skip((page - 1) * size).Limit(size).Sort("-_id").All(&list)
+	err := c.Find(query).Skip((page - 1) * size).Limit(size).Sort("-_id").All(&list)
 	if err != nil {
 		log.Error(err)
 		return nil, 0, err
 	}
-	total, err := c.engine.Find(query).Count()
+	total, err := c.Find(query).Count()
 	if err != nil {
 		log.Error(err)
 		return nil, 0, err

@@ -12,7 +12,7 @@ type MongodbConfig struct {
 	DB   string `json:"db"`
 }
 
-var databaseConn *mgo.Database
+var dbConfig *MongodbConfig
 var databaseSession *mgo.Session
 
 func InitDB(config *MongodbConfig) error {
@@ -20,18 +20,17 @@ func InitDB(config *MongodbConfig) error {
 	if err != nil {
 		return fmt.Errorf("mongo dial error:%s ", err)
 	}
-	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	databaseSession = session
-	databaseConn = databaseSession.DB(config.DB)
+	dbConfig = config
 	return nil
 }
 
-func GetMgoDB() (*mgo.Database, error) {
-	if databaseConn == nil {
-		return nil, errors.New("database connection is not init")
+func GetDBName() string {
+	if dbConfig == nil {
+		return ""
 	}
-	return databaseConn, nil
+	return dbConfig.DB
 }
 
 func GetMgoDBSession() (*mgo.Session, error) {

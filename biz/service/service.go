@@ -16,11 +16,11 @@ type TestPlatformSvc struct {
 }
 
 func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGroup) (*TestPlatformSvc, error) {
-	dbConn, err := db.GetMgoDB()
+	session, err := db.GetMgoDBSession()
 	if err != nil {
 		return nil, err
 	}
-	imageMgnt, err := db.NewMongoImage(dbConn)
+	imageMgnt, err := db.NewMongoImage(session, db.GetDBName())
 	if err != nil {
 		return nil, err
 	}

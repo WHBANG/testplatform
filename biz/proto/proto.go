@@ -3,6 +3,7 @@ package proto
 import (
 	"time"
 
+	"git.supremind.info/testplatform/biz/analyzerclient"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -32,23 +33,23 @@ type TestCaseInfo struct {
 }
 
 const (
-	EngineStatusNone     = "NONE"
-	EngineStatusStarting = "STARTING" //启动中
-	EngineStatusWaiting  = "WAITING"
-	EngineStatusRunning  = "RUNNING"
-	EngineStatusFailed   = "FAILED"
-	EngineStatusFinished = "FINISHED"
+	EngineStatusNone    = "NONE"
+	EngineStatusCreated = "CREATED"
+	EngineStatusStarted = "STARTED"
+	EngineStatusFailed  = "FAILED"
+	EngineStatusStoped  = "STOPED"
 )
 
 type EngineDeployInfo struct {
-	ID          bson.ObjectId `json:"_id" bson:"_id"`
-	Image       string        `json:"image" bson:"image"`
-	UserID      int           `json:"user_id" bson:"user_id"`
-	Description string        `json:"description" bson:"description"`
-	Product     string        `json:"product" bson:"product"`
-	Status      string        `json:"status" bson:"status"` //enginestatus
+	ID          bson.ObjectId          `json:"_id" bson:"_id"`
+	Image       string                 `json:"image" bson:"image"`
+	UserID      int                    `json:"user_id" bson:"user_id"`
+	Description string                 `json:"description" bson:"description"`
+	Product     string                 `json:"product" bson:"product"`
+	Status      string                 `json:"status" bson:"status"` //enginestatus
+	JobInfo     analyzerclient.JobInfo `json:"job_info" bson:"job_info"`
 	// Region      string        `json:"region" bson:"region"`     //根据不同的region来获取任务，区别测试
-	AnalyzerConfig interface{} `json:"analyzer_config" bson:"analyzer_config"` //配置文件，覆盖原有的
+	AnalyzerConfig interface{} `json:"analyzer_config,omitempty" bson:"analyzer_config"` //配置文件，覆盖原有的
 	ErrorInfo      string      `json:"error_info" bson:"error_info"`
 	StartTime      time.Time   `json:"start_time" bson:"start_time"`
 	StopTime       time.Time   `json:"stop_time" bson:"stop_time"`

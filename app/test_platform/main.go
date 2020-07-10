@@ -10,13 +10,25 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
+	_ "git.supremind.info/testplatform/app/test_platform/docs"
 	"git.supremind.info/testplatform/biz/analyzerclient"
 	"git.supremind.info/testplatform/biz/atomclient"
 	"git.supremind.info/testplatform/biz/service"
 	"git.supremind.info/testplatform/biz/service/db"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @termsOfService http://swagger.io/terms/
 
 type Config struct {
 	Host        string                      `json:"host"`
@@ -92,6 +104,8 @@ func main() {
 	if err != nil {
 		log.Panicf("NewEngineTestSvc err: %s ", err)
 	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	err = r.Run(conf.Host)
 	log.Panic(err)

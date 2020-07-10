@@ -19,11 +19,10 @@ type CreateTestReq struct {
 
 type CreateEngineReq struct {
 	Image          string      `json:"image"  `
-	UserID         int         `json:"user_id"  `
+	UserID         int         `json:"user_id"  example:"1"`
 	Description    string      `json:"description"  `
 	Product        string      `json:"product" `
 	AnalyzerConfig interface{} `json:"analyzer_config"  ` //配置文件，覆盖原有的
-
 }
 
 type UpdateEgnineReq struct {
@@ -54,9 +53,12 @@ type EngineQuery struct {
 }
 
 type GetEngineReq struct {
-	Page int `json:"page"`
-	Size int `json:"size"`
-	EngineQuery
+	Page    int    `json:"page"`
+	Size    int    `json:"size"`
+	Image   string `json:"image,omitempty"  `
+	UserID  int    `json:"user_id,omitempty" `
+	Product string `json:"product,omitempty"  `
+	Status  string `json:"status,omitempty" ` //enginestatus
 }
 
 type GetEngineRes struct {

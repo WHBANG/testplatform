@@ -40,7 +40,7 @@ func NewMongoTest(s *mgo.Session, db string) (TestMgnt, error) {
 func (d *MongoTest) CreateEngine(info *bproto.EngineDeployInfo) (*bproto.EngineDeployInfo, error) {
 	session := d.session.Clone()
 	defer session.Close()
-	c := session.DB(d.DB).C(imageCollName)
+	c := session.DB(d.DB).C(d.engineCollName)
 
 	if info.ID == "" {
 		info.ID = bson.NewObjectId()
@@ -59,7 +59,7 @@ func (d *MongoTest) CreateEngine(info *bproto.EngineDeployInfo) (*bproto.EngineD
 func (d *MongoTest) UpdateEngine(id bson.ObjectId, updateInfo bson.M) (*bproto.EngineDeployInfo, error) {
 	session := d.session.Clone()
 	defer session.Close()
-	c := session.DB(d.DB).C(imageCollName)
+	c := session.DB(d.DB).C(d.engineCollName)
 
 	now := time.Now()
 	updateInfo["updated_at"] = now
@@ -104,12 +104,12 @@ func (d *MongoTest) GetEngine(query bson.M, page int, size int) ([]bproto.Engine
 	list := make([]bproto.EngineDeployInfo, size)
 	err := c.Find(query).Skip((page - 1) * size).Limit(size).Sort("-_id").All(&list)
 	if err != nil {
-		log.Error(err)
+		log.Error("engine query err:", err)
 		return nil, 0, err
 	}
 	total, err := c.Find(query).Count()
 	if err != nil {
-		log.Error(err)
+		log.Error("engine query count err:", err)
 		return nil, 0, err
 	}
 	return list, total, err

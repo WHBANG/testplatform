@@ -88,6 +88,12 @@ func parseMapFromItf(itf interface{}) (map[string]interface{}, error) {
 	return data, nil
 }
 
+// @Summary 创建测试引擎
+// @Description 创建测试引擎
+// @Accept json
+// @Param example body proto.CreateEngineReq true "CreateEngineReq"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine [post]
 func (s *EngineTestSvc) CreateEngine(c *gin.Context) {
 	var req proto.CreateEngineReq
 	err := c.ShouldBindJSON(&req)
@@ -132,6 +138,12 @@ func (s *EngineTestSvc) CreateEngine(c *gin.Context) {
 	DefaultRet(c, *info, err)
 }
 
+// @Summary 启动引擎
+// @Description 启动引擎
+// @Accept json
+// @Param id path string true "id"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine/{id}/start [post]
 func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 	var req proto.StartEngineReq
 	var res interface{}
@@ -144,7 +156,7 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	info, err := s.testMgnt.GetEngineOne(bson.ObjectId(req.ID))
+	info, err := s.testMgnt.GetEngineOne(bson.ObjectIdHex(req.ID))
 	if err != nil {
 		log.Error("update mongo error:", err)
 		return
@@ -166,7 +178,7 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 		log.Error("CreateAnalyzer error:", err)
 		return
 	}
-	info, err = s.testMgnt.UpdateEngine(bson.ObjectId(req.ID), bson.M{
+	info, err = s.testMgnt.UpdateEngine(bson.ObjectIdHex(req.ID), bson.M{
 		"status": bproto.EngineStatusCreated,
 	})
 	if err != nil {
@@ -181,7 +193,7 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 		log.Error("StartAnalyzer error:", err)
 		return
 	}
-	info, err = s.testMgnt.UpdateEngine(bson.ObjectId(req.ID), bson.M{
+	info, err = s.testMgnt.UpdateEngine(bson.ObjectIdHex(req.ID), bson.M{
 		"status":   bproto.EngineStatusStarted,
 		"job_info": *job,
 	})
@@ -192,6 +204,12 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 	res = info
 }
 
+// @Summary 停止引擎
+// @Description 停止引擎
+// @Accept json
+// @Param id path string true "id"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine/{id}/stop [post]
 func (s *EngineTestSvc) StopEngine(c *gin.Context) {
 	var req proto.StopEngineReq
 	var res interface{}
@@ -205,7 +223,7 @@ func (s *EngineTestSvc) StopEngine(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	info, err := s.testMgnt.GetEngineOne(bson.ObjectId(req.ID))
+	info, err := s.testMgnt.GetEngineOne(bson.ObjectIdHex(req.ID))
 	if err != nil {
 		log.Error("update mongo error:", err)
 		return
@@ -226,7 +244,7 @@ func (s *EngineTestSvc) StopEngine(c *gin.Context) {
 		log.Error("RemoveAnalyzer error:", err)
 		// return
 	}
-	info, err = s.testMgnt.UpdateEngine(bson.ObjectId(req.ID), bson.M{
+	info, err = s.testMgnt.UpdateEngine(bson.ObjectIdHex(req.ID), bson.M{
 		"status": bproto.EngineStatusStoped,
 	})
 	if err != nil {
@@ -235,11 +253,18 @@ func (s *EngineTestSvc) StopEngine(c *gin.Context) {
 	DefaultRet(c, *info, err)
 }
 
+// @Summary 更改引擎
+// @Description 更改引擎
+// @Accept json
+// @Param id path string true "id"
+// @Param example body proto.UpdateEgnineReq true "UpdateEgnineReq"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine/{id} [put]
 func (s *EngineTestSvc) UpdateEngine(c *gin.Context) {
 	var reqID string
 	var ok bool
-	if reqID, ok = c.Params.Get("id"); !ok {
-		err := errors.New("No id specified")
+	if reqID, ok = c.Params.Get("id"); !ok || !bson.IsObjectIdHex(reqID) {
+		err := errors.New("invalid id specified")
 		DefaultRet(c, nil, err)
 		return
 	}
@@ -269,13 +294,22 @@ func (s *EngineTestSvc) UpdateEngine(c *gin.Context) {
 		DefaultRet(c, nil, err)
 		return
 	}
-	info, err := s.testMgnt.UpdateEngine(bson.ObjectId(reqID), updateInfo)
+
+	info, err := s.testMgnt.UpdateEngine(bson.ObjectIdHex(reqID), updateInfo)
 	if err != nil {
 		log.Error("update mongo error:", err)
+		DefaultRet(c, nil, err)
+		return
 	}
 	DefaultRet(c, *info, err)
 }
 
+// @Summary 移除引擎
+// @Description 移除引擎
+// @Accept json
+// @Param id path string true "id"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine/{id} [delete]
 func (s *EngineTestSvc) RemoveEngine(c *gin.Context) {
 	var req proto.RemoveEngineReq
 	err := c.ShouldBindUri(&req)
@@ -287,7 +321,7 @@ func (s *EngineTestSvc) RemoveEngine(c *gin.Context) {
 
 	//todo check status
 
-	err = s.testMgnt.RemoveEngine(bson.ObjectId(req.ID))
+	err = s.testMgnt.RemoveEngine(bson.ObjectIdHex(req.ID))
 	if err != nil {
 		log.Error("remove mongo error:", err)
 	}
@@ -295,6 +329,12 @@ func (s *EngineTestSvc) RemoveEngine(c *gin.Context) {
 	DefaultRet(c, nil, err)
 }
 
+// @Summary 获取引擎
+// @Description 获取单个引擎
+// @Accept json
+// @Param id path string true "id"
+// @Success 200 {object}  proto.CommonRes{data=proto.EngineDeployInfo}
+// @Router /v1/engine/{id} [get]
 func (s *EngineTestSvc) GetEngine(c *gin.Context) {
 	var reqID string
 	var ok bool
@@ -304,19 +344,27 @@ func (s *EngineTestSvc) GetEngine(c *gin.Context) {
 		return
 	}
 
-	info, err := s.testMgnt.GetEngineOne(bson.ObjectId(reqID))
+	info, err := s.testMgnt.GetEngineOne(bson.ObjectIdHex(reqID))
 	if err != nil {
 		log.Error("get engine error:", err)
+		DefaultRet(c, nil, err)
+		return
 	}
 
 	DefaultRet(c, *info, err)
 }
 
+// @Summary 获取引擎列表
+// @Description 获取引擎列表
+// @Accept json
+// @Param example query proto.GetEngineReq true "GetEngineReq"
+// @Success 200 {object}  proto.CommonRes{data=proto.GetEngineRes}
+// @Router /v1/engine [get]
 func (s *EngineTestSvc) GetEngineList(c *gin.Context) {
 	var req proto.GetEngineReq
-	err := c.ShouldBindJSON(&req)
+	err := c.ShouldBindQuery(&req)
 	if err != nil {
-		log.Error(err)
+		log.Error("paramerter error:", err)
 		DefaultRet(c, nil, err)
 		return
 	}
@@ -326,7 +374,12 @@ func (s *EngineTestSvc) GetEngineList(c *gin.Context) {
 	if req.Size <= 0 {
 		req.Size = 10
 	}
-	queryBytes, err := json.Marshal(req.EngineQuery)
+	queryBytes, err := json.Marshal(proto.EngineQuery{
+		Image:   req.Image,
+		UserID:  req.UserID,
+		Product: req.Product,
+		Status:  req.Status,
+	})
 	if err != nil {
 		log.Error("marshal error:", err)
 		DefaultRet(c, nil, err)
@@ -342,6 +395,8 @@ func (s *EngineTestSvc) GetEngineList(c *gin.Context) {
 	dataList, num, err := s.testMgnt.GetEngine(query, req.Page, req.Size)
 	if err != nil {
 		log.Error("get engine list error:", err)
+		DefaultRet(c, nil, err)
+		return
 	}
 	res := proto.GetEngineRes{
 		Page:  req.Page,

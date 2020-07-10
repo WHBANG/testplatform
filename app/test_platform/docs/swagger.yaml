@@ -1,0 +1,273 @@
+definitions:
+  analyzerclient.JobInfo:
+    properties:
+      creator:
+        type: string
+      name:
+        type: string
+    type: object
+  proto.CommonRes:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      msg:
+        type: string
+    type: object
+  proto.CreateEngineReq:
+    properties:
+      analyzer_config:
+        description: 配置文件，覆盖原有的
+        type: object
+      description:
+        type: string
+      image:
+        type: string
+      product:
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  proto.EngineDeployInfo:
+    properties:
+      _id:
+        type: string
+      analyzer_config:
+        description: Region      string        `json:"region" bson:"region"`     //根据不同的region来获取任务，区别测试
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      error_info:
+        type: string
+      image:
+        type: string
+      job_info:
+        $ref: '#/definitions/analyzerclient.JobInfo'
+      product:
+        type: string
+      start_time:
+        type: string
+      status:
+        description: enginestatus
+        type: string
+      stop_time:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.GetEngineRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/proto.EngineDeployInfo'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  proto.UpdateEgnineReq:
+    properties:
+      analyzer_config:
+        description: 配置文件，覆盖原有的
+        type: object
+      description:
+        type: string
+      image:
+        type: string
+      product:
+        type: string
+      user_id:
+        type: integer
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+paths:
+  /v1/engine:
+    get:
+      consumes:
+      - application/json
+      description: 获取引擎列表
+      parameters:
+      - in: query
+        name: image
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: product
+        type: string
+      - in: query
+        name: size
+        type: integer
+      - description: enginestatus
+        in: query
+        name: status
+        type: string
+      - in: query
+        name: user_id
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetEngineRes'
+              type: object
+      summary: 获取引擎列表
+    post:
+      consumes:
+      - application/json
+      description: 创建测试引擎
+      parameters:
+      - description: CreateEngineReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.CreateEngineReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 创建测试引擎
+  /v1/engine/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 移除引擎
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 移除引擎
+    get:
+      consumes:
+      - application/json
+      description: 获取单个引擎
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 获取引擎
+    put:
+      consumes:
+      - application/json
+      description: 更改引擎
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdateEgnineReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.UpdateEgnineReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 更改引擎
+  /v1/engine/{id}/start:
+    post:
+      consumes:
+      - application/json
+      description: 启动引擎
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 启动引擎
+  /v1/engine/{id}/stop:
+    post:
+      consumes:
+      - application/json
+      description: 停止引擎
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 停止引擎
+swagger: "2.0"

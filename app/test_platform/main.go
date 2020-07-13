@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"runtime"
 
@@ -36,6 +37,18 @@ type Config struct {
 	AtomClient  atomclient.AtomClientConfig `json:"atom_client"`
 	ConfigFiles map[string]string           `json:"config_files"`
 	Mongodb     db.MongodbConfig            `json:"mongodb"`
+}
+
+func checkConfigFiles(configM map[string]string) error {
+	if analyzerConfig, ok := configM["analyzer.conf"]; ok {
+		var m = make(map[string]interface{})
+		err := json.Unmarshal([]byte(analyzerConfig), &m)
+		if err != nil {
+			err = fmt.Errorf("unmarshal analyzer.conf error:%s", err)
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -71,6 +84,10 @@ func main() {
 			log.Panicf("read file %s err: %s ", v, err)
 		}
 		fileMap[k] = string(data)
+	}
+	err = checkConfigFiles(fileMap)
+	if err != nil {
+		log.Panicf("check config files error: %s ", err)
 	}
 
 	err = db.InitDB(&conf.Mongodb)

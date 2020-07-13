@@ -102,26 +102,33 @@ func (s *EngineTestSvc) CreateEngine(c *gin.Context) {
 		DefaultRet(c, nil, err)
 		return
 	}
-
+	// log.Info(s.configFileMap)
 	newID := bson.NewObjectId()
 	var analyzerConfig map[string]interface{}
-	if req.AnalyzerConfig != nil {
-		analyzerConfig, err = parseMapFromItf(req.AnalyzerConfig)
+	if req.AnalyzerConfig != "" {
+		analyzerConfig, err = parseMapFromStr(req.AnalyzerConfig)
 		if err != nil {
 			err = fmt.Errorf("parse analyzer config file error:%s", err.Error())
 			DefaultRet(c, nil, err)
 			return
 		}
-		analyzerConfig["region"] = newID
-	} else if analyzerConfigStr, ok := s.configFileMap["analyzer.conf"]; ok {
-		analyzerConfig, err = parseMapFromStr(analyzerConfigStr)
-		if err != nil {
-			err = fmt.Errorf("parse default analyzer config file error:%s", err.Error())
-			DefaultRet(c, nil, err)
-			return
+		if len(analyzerConfig) > 0 {
+			analyzerConfig["region"] = newID
 		}
-		analyzerConfig["region"] = newID
 	}
+	if len(analyzerConfig) == 0 {
+		if analyzerConfigStr, ok := s.configFileMap["analyzer.conf"]; ok {
+			analyzerConfig, err = parseMapFromStr(analyzerConfigStr)
+			if err != nil {
+				err = fmt.Errorf("parse default analyzer config file error:%s", err.Error())
+				DefaultRet(c, nil, err)
+				return
+			}
+			analyzerConfig["region"] = newID
+		}
+	}
+
+	analyzerConfigStr, _ := json.Marshal(analyzerConfig)
 
 	info, err := s.testMgnt.CreateEngine(&bproto.EngineDeployInfo{
 		ID:             newID,
@@ -130,7 +137,7 @@ func (s *EngineTestSvc) CreateEngine(c *gin.Context) {
 		Description:    req.Description,
 		Product:        req.Description,
 		Status:         bproto.EngineStatusNone,
-		AnalyzerConfig: analyzerConfig,
+		AnalyzerConfig: string(analyzerConfigStr),
 	})
 	if err != nil {
 		log.Error("create engine error:", err)
@@ -162,17 +169,19 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 		return
 	}
 	configM := make(map[string]string)
-	analyzerConfig, _ := json.Marshal(info.AnalyzerConfig)
-	configM["analyzer.conf"] = string(analyzerConfig)
-
+	// analyzerConfig, _ := json.Marshal(info.AnalyzerConfig)
+	configM["analyzer.conf"] = info.AnalyzerConfig
 	jobDeployInfo := analyzerclient.AnalyzerDeployInfo{
-		JobName:   req.ID,
-		Image:     info.Image,
-		ConfigMap: configM,
+		JobName: req.ID,
+		Image:   info.Image,
 	}
 	if _, ok := s.configFileMap["start.sh"]; ok {
 		jobDeployInfo.Args = "sh /workspace/mnt/config/start.sh"
+		// jobDeployInfo.Args = "tail -f /dev/null"
+		configM["start.sh"] = s.configFileMap["start.sh"]
 	}
+
+	jobDeployInfo.ConfigMap = configM
 	job, err := s.engineIfc.CreateAnalyzer(&jobDeployInfo)
 	if err != nil {
 		log.Error("CreateAnalyzer error:", err)
@@ -201,7 +210,7 @@ func (s *EngineTestSvc) StartEngine(c *gin.Context) {
 		log.Error("update mongo error:", err)
 		return
 	}
-	res = info
+	res = *info
 }
 
 // @Summary 停止引擎
@@ -277,16 +286,21 @@ func (s *EngineTestSvc) UpdateEngine(c *gin.Context) {
 		return
 	}
 
-	if req.AnalyzerConfig != nil {
+	if req.AnalyzerConfig != "" {
 		var analyzerConfig map[string]interface{}
-		analyzerConfig, err = parseMapFromItf(req.AnalyzerConfig)
+		analyzerConfig, err = parseMapFromStr(req.AnalyzerConfig)
 		if err != nil {
 			err = fmt.Errorf("parse analyzer config file error:%s", err.Error())
 			DefaultRet(c, nil, err)
 			return
 		}
-		analyzerConfig["region"] = reqID
-		req.AnalyzerConfig = analyzerConfig
+		if len(analyzerConfig) > 0 {
+			analyzerConfig["region"] = reqID
+			configStr, _ := json.Marshal(analyzerConfig)
+			req.AnalyzerConfig = string(configStr)
+		} else {
+			req.AnalyzerConfig = ""
+		}
 	}
 	updateStr, _ := json.Marshal(req)
 	updateInfo, err := parseMapFromStr(string(updateStr))

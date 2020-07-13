@@ -41,7 +41,7 @@ const (
 )
 
 type EngineDeployInfo struct {
-	ID          bson.ObjectId          `json:"_id" bson:"_id"`
+	ID          bson.ObjectId          `json:"id" bson:"_id"`
 	Image       string                 `json:"image" bson:"image"`
 	UserID      int                    `json:"user_id" bson:"user_id"`
 	Description string                 `json:"description" bson:"description"`
@@ -49,10 +49,10 @@ type EngineDeployInfo struct {
 	Status      string                 `json:"status" bson:"status"` //enginestatus
 	JobInfo     analyzerclient.JobInfo `json:"job_info" bson:"job_info"`
 	// Region      string        `json:"region" bson:"region"`     //根据不同的region来获取任务，区别测试
-	AnalyzerConfig interface{} `json:"analyzer_config,omitempty" bson:"analyzer_config"` //配置文件，覆盖原有的
-	ErrorInfo      string      `json:"error_info" bson:"error_info"`
-	StartTime      time.Time   `json:"start_time" bson:"start_time"`
-	StopTime       time.Time   `json:"stop_time" bson:"stop_time"`
+	AnalyzerConfig string    `json:"analyzer_config,omitempty" bson:"analyzer_config"` //配置文件，覆盖原有的
+	ErrorInfo      string    `json:"error_info" bson:"error_info"`
+	StartTime      time.Time `json:"start_time" bson:"start_time"`
+	StopTime       time.Time `json:"stop_time" bson:"stop_time"`
 
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`

@@ -18,19 +18,19 @@ type CreateTestReq struct {
 }
 
 type CreateEngineReq struct {
-	Image          string      `json:"image"  `
-	UserID         int         `json:"user_id"  example:"1"`
-	Description    string      `json:"description"  `
-	Product        string      `json:"product" `
-	AnalyzerConfig interface{} `json:"analyzer_config"  ` //配置文件，覆盖原有的
+	Image          string `json:"image" example:"reg.supremind.info/products/vas/vas-app/analyzer:cuda10-20200604-16108" `
+	UserID         int    `json:"user_id"  example:"1"`
+	Description    string `json:"description"  example:"test"`
+	Product        string `json:"product"  example:"massiveflow"`
+	AnalyzerConfig string `json:"analyzer_config"   example:"{}"` //配置文件，覆盖原有的
 }
 
 type UpdateEgnineReq struct {
-	Image          string      `json:"image,omitempty" `
-	UserID         int         `json:"user_id,omitempty"  `
-	Description    string      `json:"description,omitempty" `
-	Product        string      `json:"product,omitempty"  `
-	AnalyzerConfig interface{} `json:"analyzer_config,omitempty" ` //配置文件，覆盖原有的
+	Image          string `json:"image,omitempty" example:"reg.supremind.info/products/vas/vas-app/analyzer:cuda10-20200604-16108"`
+	UserID         int    `json:"user_id,omitempty"  example:"1"`
+	Description    string `json:"description,omitempty" example:"test"`
+	Product        string `json:"product,omitempty"  example:"massiveflow"`
+	AnalyzerConfig string `json:"analyzer_config,omitempty" example:"{}"` //配置文件，覆盖原有的
 }
 
 type StartEngineReq struct {

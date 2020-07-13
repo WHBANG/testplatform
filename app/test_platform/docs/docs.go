@@ -360,16 +360,20 @@ var doc = `{
             "properties": {
                 "analyzer_config": {
                     "description": "配置文件，覆盖原有的",
-                    "type": "object"
+                    "type": "string",
+                    "example": "{}"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test"
                 },
                 "image": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "reg.supremind.info/products/vas/vas-app/analyzer:cuda10-20200604-16108"
                 },
                 "product": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "massiveflow"
                 },
                 "user_id": {
                     "type": "integer",
@@ -385,7 +389,7 @@ var doc = `{
                 },
                 "analyzer_config": {
                     "description": "Region      string        ` + "`" + `json:\"region\" bson:\"region\"` + "`" + `     //根据不同的region来获取任务，区别测试",
-                    "type": "object"
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -448,19 +452,24 @@ var doc = `{
             "properties": {
                 "analyzer_config": {
                     "description": "配置文件，覆盖原有的",
-                    "type": "object"
+                    "type": "string",
+                    "example": "{}"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test"
                 },
                 "image": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "reg.supremind.info/products/vas/vas-app/analyzer:cuda10-20200604-16108"
                 },
                 "product": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "massiveflow"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         }

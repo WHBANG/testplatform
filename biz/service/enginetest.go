@@ -22,6 +22,8 @@ type EngineTestSvc struct {
 	configFileMap map[string]string
 }
 
+//todo add goroutine to check job status
+
 func NewEngineTestSvc(ctx context.Context, group *gin.RouterGroup, engineIfc analyzerclient.AnalyzerInterface, configFileMap map[string]string) (*EngineTestSvc, error) {
 	session, err := db.GetMgoDBSession()
 	if err != nil {

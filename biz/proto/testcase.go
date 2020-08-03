@@ -1,14 +1,8 @@
 package proto
 
-import (
-	"qiniu.com/vas-base/biz/flow"
-)
-
-type EventData map[string]interface{}
-
 type MetaData struct {
 	Case  *MetaCase   `json:"case"`
-	Task  *flow.Task  `json:"task"`
+	Task  *Task       `json:"task"`
 	Event []EventData `json:"event"`
 	Files *FileCase   `json:"files"`
 }

@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	git.supremind.info/products/atom/apiserver/client v1.1.0
-	git.supremind.info/products/atom/com v1.2.2 // indirect
+	git.supremind.info/products/atom/com v1.3.0 // indirect
 	git.supremind.info/products/atom/proto/go/api v1.0.22
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/gin-gonic/gin v1.6.3

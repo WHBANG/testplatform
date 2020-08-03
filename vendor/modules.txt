@@ -1,7 +1,7 @@
 # git.supremind.info/products/atom/apiserver/client v1.1.0
 ## explicit
 git.supremind.info/products/atom/apiserver/client
-# git.supremind.info/products/atom/com v1.2.2
+# git.supremind.info/products/atom/com v1.3.0
 ## explicit
 git.supremind.info/products/atom/com/files
 git.supremind.info/products/atom/com/grpc
@@ -160,7 +160,7 @@ golang.org/x/crypto/blake2b
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/pbkdf2
-# golang.org/x/net v0.0.0-20200319234117-63522dbf7eec
+# golang.org/x/net v0.0.0-20200520004742-59133d7f0dd7
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack

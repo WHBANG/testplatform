@@ -7,6 +7,7 @@ require (
 	git.supremind.info/products/atom/com v1.3.0 // indirect
 	git.supremind.info/products/atom/proto/go/api v1.0.22
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/bndr/gojenkins v1.0.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/globalsign/mgo v0.0.0-20190517090918-73267e130ca1 // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect

@@ -16,6 +16,7 @@ import (
 	"git.supremind.info/testplatform/biz/atomclient"
 	"git.supremind.info/testplatform/biz/service"
 	"git.supremind.info/testplatform/biz/service/db"
+	_ "github.com/bndr/gojenkins"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"

@@ -13,6 +13,7 @@ type ImageInfo struct {
 	UserID      int           `json:"user_id" bson:"user_id"`
 	Description string        `json:"description" bson:"description"`
 	Product     string        `json:"product" bson:"product"`
+	Models      []Model       `json:"models" bson:"models"`
 	CreatedAt   time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at" bson:"updated_at"`
 }

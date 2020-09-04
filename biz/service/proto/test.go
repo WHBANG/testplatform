@@ -8,12 +8,6 @@ const (
 	DefaultErrorCode = 1
 )
 
-type CommonRes struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
-}
-
 type CreateTestReq struct {
 }
 

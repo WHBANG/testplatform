@@ -12,4 +12,3 @@ ARG GOPRIVATE=git.supremind.info
 
 ARG VERSION=dev
 COPY ./ /go/src/git.supremind.info/testplatform/
-

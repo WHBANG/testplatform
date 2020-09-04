@@ -6,6 +6,48 @@ definitions:
       name:
         type: string
     type: object
+  jenkinsclient.Model:
+    properties:
+      banner_detect_east_model.tronmodel:
+        type: string
+      banner_detect_od_model.tronmodel:
+        type: string
+      crowd_count_model.tronmodel:
+        type: string
+      crowd_region_count_local_model.tronmodel:
+        type: string
+      fight_classify_local_model.tronmodel:
+        type: string
+      head_count_model.tronmodel:
+        type: string
+      queue_count_local_model.tronmodel:
+        type: string
+    type: object
+  jenkinsclient.Models:
+    properties:
+      models:
+        $ref: '#/definitions/jenkinsclient.Model'
+        type: object
+    type: object
+  jenkinsclient.Parmeter:
+    properties:
+      analyzer_io_base_image:
+        type: string
+      analyzer_type:
+        type: string
+      branch:
+        type: string
+      models_config:
+        $ref: '#/definitions/jenkinsclient.Models'
+        type: object
+    type: object
+  proto.ClassDetect:
+    properties:
+      label:
+        type: string
+      score:
+        type: integer
+    type: object
   proto.CommonRes:
     properties:
       code:
@@ -13,6 +55,24 @@ definitions:
       data:
         type: object
       msg:
+        type: string
+    type: object
+  proto.CommonTaskRes:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+    type: object
+  proto.Condition:
+    properties:
+      data:
+        items:
+          type: integer
+        type: array
+      name:
+        type: string
+      type:
         type: string
     type: object
   proto.CreateEngineReq:
@@ -34,10 +94,72 @@ definitions:
         example: 1
         type: integer
     type: object
+  proto.CreateTaskReq:
+    properties:
+      analyze_config:
+        additionalProperties: true
+        description: 模型参数
+        type: object
+      extra:
+        additionalProperties: true
+        description: 为业务方保留的自定义字段
+        type: object
+      id:
+        description: 任务id, 必须全局唯一
+        type: string
+      name:
+        description: 名称
+        type: string
+      read_stream_url:
+        description: 读流地址, 提供前端辅助使用
+        type: string
+      region:
+        description: 区域
+        type: string
+      snapshot:
+        description: 布控截图
+        type: string
+      status:
+        description: 任务状态
+        type: string
+      stream_id:
+        description: StreamID来自device-api, 前端可以匹配到摄像头名称
+        type: string
+      stream_list:
+        description: 多个摄像头
+        items:
+          $ref: '#/definitions/proto.StreamSetting'
+        type: array
+      stream_on:
+        description: 是否需要推流
+        type: string
+      type:
+        description: 任务类型
+        type: string
+      work_field:
+        $ref: '#/definitions/proto.WorkField'
+        description: 任务运行字段
+        type: object
+      write_stream_url:
+        description: 推流地址, 提供前端辅助使用
+        type: string
+    type: object
+  proto.Detail:
+    properties:
+      id:
+        type: string
+      label:
+        type: string
+      pts:
+        $ref: '#/definitions/proto.PTS'
+        type: object
+      scene:
+        type: string
+      score:
+        type: integer
+    type: object
   proto.EngineDeployInfo:
     properties:
-      _id:
-        type: string
       analyzer_config:
         description: Region      string        `json:"region" bson:"region"`     //根据不同的region来获取任务，区别测试
         type: string
@@ -47,10 +169,13 @@ definitions:
         type: string
       error_info:
         type: string
+      id:
+        type: string
       image:
         type: string
       job_info:
         $ref: '#/definitions/analyzerclient.JobInfo'
+        type: object
       product:
         type: string
       start_time:
@@ -61,6 +186,31 @@ definitions:
       stop_time:
         type: string
       updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.EventExtra:
+    properties:
+      processReason:
+        type: integer
+      processStatus:
+        type: integer
+      readStatus:
+        type: integer
+    type: object
+  proto.GetEngineReq:
+    properties:
+      image:
+        type: string
+      page:
+        type: integer
+      product:
+        type: string
+      size:
+        type: integer
+      status:
+        description: enginestatus
         type: string
       user_id:
         type: integer
@@ -77,6 +227,474 @@ definitions:
         type: integer
       total:
         type: integer
+    type: object
+  proto.GetImageReq:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      page:
+        type: integer
+      product:
+        type: string
+      size:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  proto.GetImageRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/proto.ImageInfo'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  proto.GetJTEventRes:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/proto.JTEventInfo'
+        type: array
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total_count:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  proto.GetModelsRes:
+    items:
+      $ref: '#/definitions/proto.ProductInfo'
+    type: array
+  proto.GetTestCaseReq:
+    properties:
+      description:
+        type: string
+      page:
+        type: integer
+      product:
+        type: string
+      size:
+        type: integer
+      test_data:
+        type: object
+      user_id:
+        type: integer
+    type: object
+  proto.GetTestCaseRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/proto.TestCaseInfo'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  proto.ImageInfo:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/proto.Model'
+        type: array
+      product:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.IndexData:
+    properties:
+      date:
+        type: string
+      hour:
+        type: integer
+    type: object
+  proto.InsertImageReq:
+    properties:
+      _id:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/proto.Model'
+        type: array
+      product:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.InsertModelReq:
+    properties:
+      model_id:
+        type: integer
+      model_name:
+        type: string
+      model_type:
+        type: string
+      model_url:
+        type: string
+    type: object
+  proto.InsertTestCaseReq:
+    properties:
+      description:
+        type: string
+      product:
+        type: string
+      test_data:
+        type: object
+      user_id:
+        type: integer
+    type: object
+  proto.JTEventInfo:
+    properties:
+      cameraId:
+        type: string
+      classStr:
+        items:
+          type: string
+        type: array
+      componentExtra:
+        type: object
+      createdAt:
+        type: string
+      deeperInfo:
+        type: object
+      endTime:
+        type: string
+      eventExtra:
+        $ref: '#/definitions/proto.EventExtra'
+        type: object
+      eventId:
+        type: string
+      eventType:
+        type: string
+      eventTypeStr:
+        type: string
+      extra:
+        type: object
+      id:
+        type: string
+      indexData:
+        $ref: '#/definitions/proto.IndexData'
+        type: object
+      mark:
+        $ref: '#/definitions/proto.Mark'
+        type: object
+      originalConfig:
+        $ref: '#/definitions/proto.OriginalConfig'
+        type: object
+      originalViolationIndex:
+        type: integer
+      region:
+        type: string
+      snapshot:
+        items:
+          $ref: '#/definitions/proto.Snapshot'
+        type: array
+      startTime:
+        type: string
+      status:
+        type: string
+      summary:
+        $ref: '#/definitions/proto.Summary'
+        type: object
+      task_type:
+        type: string
+      taskId:
+        type: string
+      updatedAt:
+        type: string
+      videoUri:
+        type: string
+      zone:
+        type: object
+    type: object
+  proto.LocalTime:
+    $ref: '#/definitions/time.Time'
+  proto.Mark:
+    properties:
+      commonEditMap:
+        type: object
+      discardReason:
+        type: integer
+      isClassEdit:
+        type: boolean
+      isLabelEdit:
+        type: boolean
+      isNonmotorTypeEdit:
+        type: boolean
+      marking:
+        type: string
+    type: object
+  proto.Model:
+    properties:
+      model_id:
+        type: integer
+      model_name:
+        type: string
+      model_type:
+        type: string
+      model_url:
+        type: string
+    type: object
+  proto.ModelInfo:
+    properties:
+      accuracy:
+        type: string
+      complete_time:
+        $ref: '#/definitions/proto.LocalTime'
+        type: object
+      model_id:
+        type: integer
+      model_name:
+        type: string
+      model_type:
+        type: string
+      model_url:
+        type: string
+      speed:
+        type: string
+      username:
+        type: string
+    type: object
+  proto.Object:
+    properties:
+      box:
+        items:
+          type: integer
+        type: array
+      direction:
+        type: string
+      direction_score:
+        type: integer
+      score:
+        type: integer
+      special_car_type:
+        type: string
+      special_car_type_score:
+        type: integer
+      sub_type:
+        type: string
+      sub_type_score:
+        type: integer
+      type:
+        type: string
+    type: object
+  proto.Origi:
+    properties:
+      now:
+        type: string
+      objects:
+        items:
+          $ref: '#/definitions/proto.Object'
+        type: array
+      pts:
+        type: string
+    type: object
+  proto.OriginalConfig:
+    properties:
+      rois:
+        $ref: '#/definitions/proto.Rois'
+        type: object
+      stream_push_address:
+        type: string
+      violations:
+        items:
+          $ref: '#/definitions/proto.Violation'
+        type: array
+    type: object
+  proto.PTS:
+    items:
+      items:
+        type: integer
+      type: array
+    type: array
+  proto.ProductInfo:
+    properties:
+      models:
+        items:
+          $ref: '#/definitions/proto.ModelInfo'
+        type: array
+      product_id:
+        type: integer
+      product_name:
+        type: string
+    type: object
+  proto.Rois:
+    items:
+      items:
+        type: integer
+      type: array
+    type: array
+  proto.Snapshot:
+    properties:
+      class:
+        type: integer
+      details:
+        items:
+          $ref: '#/definitions/proto.Detail'
+        type: array
+      featureUri:
+        type: string
+      label:
+        type: string
+      labelScore:
+        type: integer
+      origin:
+        $ref: '#/definitions/proto.Origi'
+        type: object
+      pts:
+        $ref: '#/definitions/proto.PTS'
+        type: object
+      score:
+        type: integer
+      sizeRatio:
+        type: integer
+      snapshotUri:
+        type: string
+      snapshotUriRaw:
+        type: string
+      snapshotUriThumb:
+        type: string
+    type: object
+  proto.StreamSetting:
+    properties:
+      read_stream_url:
+        description: 读流地址, 提供前端辅助使用
+        type: string
+      snapshot:
+        description: 布控截图
+        type: string
+      stream_id:
+        description: StreamID来自device-api, 前端可以匹配到摄像头名称
+        type: string
+      stream_on:
+        description: 是否需要推流
+        type: string
+      write_stream_url:
+        description: 推流地址, 提供前端辅助使用
+        type: string
+    type: object
+  proto.Summary:
+    properties:
+      class:
+        $ref: '#/definitions/proto.ClassDetect'
+        type: object
+      detect:
+        $ref: '#/definitions/proto.ClassDetect'
+        type: object
+    type: object
+  proto.TaskInfo:
+    properties:
+      _id:
+        type: string
+      analyze_config:
+        additionalProperties: true
+        description: 模型参数
+        type: object
+      created_at:
+        description: 创建时间
+        type: string
+      error_msg:
+        description: 错误信息
+        type: string
+      extra:
+        additionalProperties: true
+        description: 为业务方保留的自定义字段
+        type: object
+      holder:
+        type: object
+      id:
+        description: 任务id, 必须全局唯一
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        description: 名称
+        type: string
+      region:
+        description: 区域
+        type: string
+      snapshot:
+        description: 布控截图
+        type: string
+      status:
+        description: 任务状态
+        type: string
+      stream_id:
+        description: StreamID来自device-api, 前端可以匹配到摄像头名称
+        type: string
+      stream_list:
+        description: 多个摄像头
+        items:
+          $ref: '#/definitions/proto.StreamSetting'
+        type: array
+      stream_on:
+        description: 是否需要推流
+        type: string
+      type:
+        description: 任务类型
+        type: string
+      updated_at:
+        type: string
+      ver:
+        description: 版本
+        type: integer
+      work_field:
+        $ref: '#/definitions/proto.WorkField'
+        description: 任务运行字段
+        type: object
+    type: object
+  proto.TestCaseInfo:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      product:
+        type: string
+      test_data:
+        type: object
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.TimeBucket:
+    properties:
+      end_time:
+        description: 结束时间
+        type: string
+      start_time:
+        description: 开始时间
+        type: string
     type: object
   proto.UpdateEgnineReq:
     properties:
@@ -97,6 +715,110 @@ definitions:
         example: 1
         type: integer
     type: object
+  proto.UpdateImageReq:
+    properties:
+      description:
+        type: string
+      image:
+        description: ID          bson.ObjectId `json:"_id,omitempty"`
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/proto.Model'
+        type: array
+      product:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  proto.UpdateModelReq:
+    properties:
+      model_id:
+        type: integer
+      model_name:
+        type: string
+      model_type:
+        type: string
+      model_url:
+        type: string
+    type: object
+  proto.UpdateTaskReq:
+    properties:
+      analyze_config:
+        additionalProperties: true
+        description: 模型参数
+        type: object
+      extra:
+        additionalProperties: true
+        description: 为业务方保留的自定义字段
+        type: object
+      name:
+        description: 名称
+        type: string
+      snapshot:
+        description: 布控截图, base64编码
+        type: string
+      stream_on:
+        description: 是否推流
+        type: string
+    type: object
+  proto.UpdateTestCaseReq:
+    properties:
+      description:
+        type: string
+      product:
+        type: string
+      test_data:
+        type: object
+      user_id:
+        type: integer
+    type: object
+  proto.Violation:
+    properties:
+      code:
+        type: string
+      conditions:
+        items:
+          $ref: '#/definitions/proto.Condition'
+        type: array
+      enable_roi:
+        type: boolean
+      name:
+        type: string
+      "on":
+        type: boolean
+      roi:
+        items:
+          type: integer
+        type: array
+      threshold:
+        type: integer
+      traffic_light_box:
+        items:
+          type: integer
+        type: array
+    type: object
+  proto.WorkField:
+    properties:
+      is_work_time_enabled:
+        type: boolean
+      work_times:
+        description: 布控生效的时间段
+        items:
+          $ref: '#/definitions/proto.WorkTime'
+        type: array
+    type: object
+  proto.WorkTime:
+    properties:
+      time_buckets:
+        description: 一天的生效时间段
+        items:
+          $ref: '#/definitions/proto.TimeBucket'
+        type: array
+      weekday:
+        description: 周日~周六 取值(0~6)
+        type: integer
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -107,7 +829,247 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
 paths:
+  /jenkins/build:
+    post:
+      consumes:
+      - application/json
+      description: do build
+      parameters:
+      - description: Parmeter
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/jenkinsclient.Parmeter'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: integer
+                  type: object
+              type: object
+      summary: build
+  /jenkins/last:
+    get:
+      consumes:
+      - application/json
+      description: show the last successful build number
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: integer
+                  type: object
+              type: object
+      summary: get the last successful build
+  /jenkins/show/{number}:
+    get:
+      consumes:
+      - application/json
+      description: show build result by build number
+      parameters:
+      - description: number
+        in: query
+        name: number
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: show build result
+  /testcase/:
+    delete:
+      consumes:
+      - application/json
+      description: 根据id数组批量删除测试用例数据
+      parameters:
+      - collectionFormat: multi
+        description: list
+        in: query
+        items:
+          type: string
+        name: list
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TestCaseInfo'
+              type: object
+      summary: 批量删除
+    get:
+      consumes:
+      - application/json
+      description: 根据ID在数据库中查找对应的测试用例信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TestCaseInfo'
+              type: object
+      summary: 查找测试用例
+    post:
+      consumes:
+      - application/json
+      description: 向数据库中插入新的测试用例
+      parameters:
+      - description: InsertTestCaseReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.InsertTestCaseReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TestCaseInfo'
+              type: object
+      summary: 插入测试用例
+  /testcase/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID所对应的测试用例数据
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TestCaseInfo'
+              type: object
+      summary: 删除测试用例
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID所对应的测试用例的信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: updateTestCaseReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.UpdateTestCaseReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TestCaseInfo'
+              type: object
+      summary: 更新测试用例
+  /testcase/like/:
+    get:
+      consumes:
+      - application/json
+      description: 根据测试用例的字段信息进行模糊查询
+      parameters:
+      - in: query
+        name: description
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: product
+        type: string
+      - in: query
+        name: size
+        type: integer
+      - in: query
+        name: user_id
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetTestCaseRes'
+              type: object
+      summary: 模糊查询测试用例
   /v1/engine:
+    delete:
+      consumes:
+      - application/json
+      description: 批量移除引擎
+      parameters:
+      - collectionFormat: multi
+        description: list
+        in: query
+        items:
+          type: string
+        name: list
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.EngineDeployInfo'
+              type: object
+      summary: 批量移除引擎
     get:
       consumes:
       - application/json
@@ -279,4 +1241,551 @@ paths:
                   $ref: '#/definitions/proto.EngineDeployInfo'
               type: object
       summary: 停止引擎
+  /v1/image/:
+    delete:
+      consumes:
+      - application/json
+      description: 根据输入的镜像ID数组删除数据库中镜像信息
+      parameters:
+      - collectionFormat: multi
+        description: id
+        in: query
+        items:
+          type: string
+        name: list
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ImageInfo'
+              type: object
+      summary: 批量删除
+    get:
+      consumes:
+      - application/json
+      description: 根据镜像ID在数据库中查找对应的镜像信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ImageInfo'
+              type: object
+      summary: 查找镜像
+  /v1/image/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据输入的镜像ID删除数据库中对应的镜像信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ImageInfo'
+              type: object
+      summary: 删除镜像信息
+    post:
+      consumes:
+      - application/json
+      description: 将输入的镜像信息添加到数据库中
+      parameters:
+      - description: InsertImageReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.InsertImageReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ImageInfo'
+              type: object
+      summary: 新增镜像信息
+    put:
+      consumes:
+      - application/json
+      description: 根据ID查找到对应的镜像，并将其更新为新输入的镜像信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdateImageReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.UpdateImageReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ImageInfo'
+              type: object
+      summary: 更新镜像
+  /v1/image/like/:
+    get:
+      consumes:
+      - application/json
+      description: 根据镜像的字段信息进行模糊查询
+      parameters:
+      - in: query
+        name: description
+        type: string
+      - in: query
+        name: image
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: product
+        type: string
+      - in: query
+        name: size
+        type: integer
+      - in: query
+        name: user_id
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetImageRes'
+              type: object
+      summary: 模糊查询
+  /v1/jt_event/events:
+    get:
+      consumes:
+      - application/json
+      description: 查询已存在的事件
+      parameters:
+      - description: eventId
+        in: query
+        name: eventId
+        type: string
+      - description: taskId
+        in: query
+        name: taskId
+        type: string
+      - description: 事件原因：{391:已处理，392:忽略}
+        in: query
+        items:
+          type: string
+        name: processReasons
+        type: array
+      - description: 事件状态：{0:未处理，1:已处理}
+        in: query
+        name: processStatus
+        type: string
+      - description: eventTypes
+        in: query
+        items:
+          type: string
+        name: eventTypes
+        type: array
+      - description: cameraIds
+        in: query
+        items:
+          type: string
+        name: cameraIds
+        type: array
+      - description: __timestamp__
+        in: query
+        name: __timestamp__
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetJTEventRes'
+              type: object
+      summary: 事件查询
+  /v1/model:
+    post:
+      consumes:
+      - application/json
+      description: 添加模型到数据库中
+      parameters:
+      - description: InsertModelReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.InsertModelReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ModelInfo'
+              type: object
+      summary: 新增模型
+  /v1/model/:
+    delete:
+      consumes:
+      - application/json
+      description: 根据输入的模型ID数组删除模型
+      parameters:
+      - collectionFormat: multi
+        description: id
+        in: query
+        items:
+          type: string
+        name: list
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/proto.ModelInfo'
+                  type: array
+              type: object
+      summary: 批量删除模型
+  /v1/model/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据ID字段查找到对应的模型，并将其更新为新输入的模型信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdateModelReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.UpdateModelReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ModelInfo'
+              type: object
+      summary: 更新模型
+  /v1/model/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据模型ID删除数据库中对应的模型
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ModelInfo'
+              type: object
+      summary: 删除模型
+  /v1/model/id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据模型ID查找对应的模型
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.ModelInfo'
+              type: object
+      summary: 查找模型
+  /v1/model/reset:
+    get:
+      consumes:
+      - application/json
+      description: 重置模型数据库
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetModelsRes'
+              type: object
+      summary: 重置模型数据库
+  /v1/model/update:
+    get:
+      consumes:
+      - application/json
+      description: 更新模型数据库
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.GetModelsRes'
+              type: object
+      summary: 更新模型数据库
+  /v1/task/:
+    get:
+      consumes:
+      - application/json
+      description: 根据输入的task字段信息来查询布控任务信息
+      parameters:
+      - description: id
+        in: query
+        name: id
+        type: string
+      - description: type
+        in: query
+        name: type
+        type: string
+      - description: violation_type
+        in: query
+        name: violation_type
+        type: string
+      - description: stream_id
+        in: query
+        name: stream_id
+        type: string
+      - description: status
+        in: query
+        name: status
+        type: string
+      - description: stream_on
+        in: query
+        name: stream_on
+        type: string
+      - description: create_time_begin
+        in: query
+        name: create_time_begin
+        type: string
+      - description: create_time_end
+        in: query
+        name: create_time_end
+        type: string
+      - description: name
+        in: query
+        name: name
+        type: string
+      - description: simple
+        in: query
+        name: simple
+        type: string
+      - description: ids
+        in: query
+        items:
+          type: string
+        name: ids
+        type: array
+      - description: org_codes
+        in: query
+        items:
+          type: string
+        name: org_codes
+        type: array
+      - description: device_detail
+        in: query
+        items:
+          type: string
+        name: device_detail
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonTaskRes'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/proto.TaskInfo'
+                  type: array
+              type: object
+      summary: 布控任务查询
+    post:
+      consumes:
+      - application/json
+      description: 新增一个布控任务到VMR中
+      parameters:
+      - description: CreateTaskReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.CreateTaskReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.CommonTaskRes'
+      summary: 创建布控任务
+  /v1/task/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据id来获取单个布控任务
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.TaskInfo'
+      summary: 获取单个布控任务
+  /v1/task/del/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 根据id来删除单个布控任务
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.CommonTaskRes'
+      summary: 删除单个布控任务
+  /v1/task/start/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 根据id来启动单个布控任务
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.CommonTaskRes'
+      summary: 启动布控任务
+  /v1/task/stop/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 根据id来停止布控任务
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.CommonTaskRes'
+      summary: 停止布控任务
+  /v1/task/update/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 根据id来更新布控任务
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdateTaskReq
+        in: body
+        name: example
+        required: true
+        schema:
+          $ref: '#/definitions/proto.UpdateTaskReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/proto.CommonRes'
+            - properties:
+                data:
+                  $ref: '#/definitions/proto.TaskInfo'
+              type: object
+      summary: 更新布控任务
 swagger: "2.0"

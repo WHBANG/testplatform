@@ -14,9 +14,9 @@ import (
 	_ "git.supremind.info/testplatform/app/test_platform/docs"
 	"git.supremind.info/testplatform/biz/analyzerclient"
 	"git.supremind.info/testplatform/biz/atomclient"
+	"git.supremind.info/testplatform/biz/jenkinsclient"
 	"git.supremind.info/testplatform/biz/service"
 	"git.supremind.info/testplatform/biz/service/db"
-	_ "github.com/bndr/gojenkins"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -38,6 +38,8 @@ type Config struct {
 	AtomClient  atomclient.AtomClientConfig `json:"atom_client"`
 	ConfigFiles map[string]string           `json:"config_files"`
 	Mongodb     db.MongodbConfig            `json:"mongodb"`
+	Jenkins     jenkinsclient.Config        `json:jenkins`
+	VMRClient   service.VMRClient           `json:"vmr_client"`
 }
 
 func checkConfigFiles(configM map[string]string) error {
@@ -53,6 +55,7 @@ func checkConfigFiles(configM map[string]string) error {
 }
 
 func main() {
+
 	go func() {
 		log.Println(http.ListenAndServe(":6060", nil))
 	}()
@@ -113,7 +116,7 @@ func main() {
 	r := gin.Default()
 	group := r.Group("v1")
 
-	_, err = service.NewTestPlatformSvc(context.Background(), &service.Config{}, group)
+	_, err = service.NewTestPlatformSvc(context.Background(), &service.Config{VMRClient: conf.VMRClient}, group)
 	if err != nil {
 		log.Panicf("NewTestPlatformSvc err: %s ", err)
 	}
@@ -124,6 +127,8 @@ func main() {
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	jenkinsclient.JenkinsClientSvc(context.Background(), group, conf.Jenkins)
 
 	err = r.Run(conf.Host)
 	log.Panic(err)

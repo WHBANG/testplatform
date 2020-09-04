@@ -23,13 +23,13 @@ RUN apk add --no-cache curl  busybox-extras  wget  tzdata && \
     echo "Asia/Shanghai" > /etc/timezone
 
 # http server port 
-EXPOSE 80 
+EXPOSE 80
 
 RUN mkdir -p /workspace/config 
 
 COPY --from=builder /go/bin/test_platform  /workspace/test_platform
 COPY --from=builder /go/src/git.supremind.info/testplatform/app/test_platform/  /workspace/config/
 
-WORKDIR /workspace
+WORKDIR /workspace/config
 
 CMD /workspace/test_platform -f /workspace/config/service.conf

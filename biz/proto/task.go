@@ -3,6 +3,8 @@ package proto
 import (
 	"context"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type AnalyzeSummary struct {
@@ -100,4 +102,26 @@ type UpdateTaskReq struct {
 	Snapshot      string                 `json:"snapshot,omitempty"`          // 布控截图, base64编码
 	AnalyzeConfig map[string]interface{} `json:"analyze_config,omitempty"`    // 模型参数
 	Extra         map[string]interface{} `json:"extra,omitempty"`             // 为业务方保留的自定义字段
+}
+
+type TaskInfo struct {
+	IID           bson.ObjectId          `json:"_id" bson:"_id"`
+	Type          string                 `json:"type" bson:"type"`               // 任务类型
+	Region        string                 `json:"region" bson:"region"`           // 区域
+	StreamList    []StreamSetting        `json:"stream_list" bson:"stream_list"` // 多个摄像头
+	WorkField     WorkField              `bson:"work_field" json:"work_field"`   //任务运行字段
+	Status        string                 `json:"status" bson:"status"`           // 任务状态
+	UpdatedAt     time.Time              `json:"updated_at" bson:"updated_at"`
+	Extra         map[string]interface{} `json:"extra" bson:"extra"`                   // 为业务方保留的自定义字段
+	AnalyzeConfig map[string]interface{} `json:"analyze_config" bson:"analyze_config"` // 模型参数
+	ID            string                 `json:"id" bson:"id"`                         // 任务id, 必须全局唯一
+	Name          string                 `json:"name" bson:"name"`                     //名称
+	Snapshot      string                 `json:"snapshot" bson:"snapshot"`             // 布控截图
+	Holder        interface{}            `json:"holder" bson:"holder"`
+	StreamID      string                 `json:"stream_id" bson:"stream_id"`   // StreamID来自device-api, 前端可以匹配到摄像头名称
+	StreamON      string                 `json:"stream_on" bson:"stream_on"`   // 是否需要推流
+	ErrorMsg      string                 `json:"error_msg" bson:"error_msg"`   // 错误信息
+	Ver           int64                  `json:"ver" bson:"ver"`               // 版本
+	CreatedAt     time.Time              `json:"created_at" bson:"created_at"` // 创建时间
+	IsDelete      bool                   `json:"is_deleted" bson:"is_deleted"`
 }

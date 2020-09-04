@@ -15,6 +15,7 @@ type TestMgnt interface {
 	RemoveEngine(id bson.ObjectId) error
 	GetEngineOne(id bson.ObjectId) (*bproto.EngineDeployInfo, error)
 	GetEngine(query bson.M, page int, size int) ([]bproto.EngineDeployInfo, int, error)
+	BatchRemoveEngine(list []bson.ObjectId) error
 }
 
 type MongoTest struct {
@@ -113,4 +114,15 @@ func (d *MongoTest) GetEngine(query bson.M, page int, size int) ([]bproto.Engine
 		return nil, 0, err
 	}
 	return list, total, err
+}
+
+func (d *MongoTest) BatchRemoveEngine(list []bson.ObjectId) error {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(d.engineCollName)
+
+	//todo check engine status
+	_, err := c.RemoveAll(bson.M{"_id": bson.M{"$in": list}})
+	return err
+
 }

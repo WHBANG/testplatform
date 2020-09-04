@@ -33,6 +33,377 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/jenkins/build": {
+            "post": {
+                "description": "do build",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "build",
+                "parameters": [
+                    {
+                        "description": "Parmeter",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/jenkinsclient.Parmeter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/jenkins/last": {
+            "get": {
+                "description": "show the last successful build number",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "get the last successful build",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/jenkins/show/{number}": {
+            "get": {
+                "description": "show build result by build number",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "show build result",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "number",
+                        "name": "number",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/testcase/": {
+            "get": {
+                "description": "根据ID在数据库中查找对应的测试用例信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "查找测试用例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "向数据库中插入新的测试用例",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "插入测试用例",
+                "parameters": [
+                    {
+                        "description": "InsertTestCaseReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.InsertTestCaseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "根据id数组批量删除测试用例数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "批量删除",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "list",
+                        "name": "list",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/testcase/like/": {
+            "get": {
+                "description": "根据测试用例的字段信息进行模糊查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "模糊查询测试用例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "product",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.GetTestCaseRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/testcase/{id}": {
+            "put": {
+                "description": "更新指定ID所对应的测试用例的信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "更新测试用例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "updateTestCaseReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.UpdateTestCaseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除指定ID所对应的测试用例数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除测试用例",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/v1/engine": {
             "get": {
                 "description": "获取引擎列表",
@@ -109,6 +480,46 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/proto.CreateEngineReq"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.EngineDeployInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "批量移除引擎",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "批量移除引擎",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "list",
+                        "name": "list",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -327,6 +738,912 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/v1/image/": {
+            "get": {
+                "description": "根据镜像ID在数据库中查找对应的镜像信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "查找镜像",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "根据输入的镜像ID数组删除数据库中镜像信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "批量删除",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "id",
+                        "name": "list",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/image/like/": {
+            "get": {
+                "description": "根据镜像的字段信息进行模糊查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "模糊查询",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "image",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "product",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.GetImageRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/image/{id}": {
+            "put": {
+                "description": "根据ID查找到对应的镜像，并将其更新为新输入的镜像信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "更新镜像",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdateImageReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.UpdateImageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "将输入的镜像信息添加到数据库中",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新增镜像信息",
+                "parameters": [
+                    {
+                        "description": "InsertImageReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.InsertImageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "根据输入的镜像ID删除数据库中对应的镜像信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除镜像信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/jt_event/events": {
+            "get": {
+                "description": "查询已存在的事件",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "事件查询",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "eventId",
+                        "name": "eventId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "taskId",
+                        "name": "taskId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "事件原因：{391:已处理，392:忽略}",
+                        "name": "processReasons",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "事件状态：{0:未处理，1:已处理}",
+                        "name": "processStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "eventTypes",
+                        "name": "eventTypes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "cameraIds",
+                        "name": "cameraIds",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "__timestamp__",
+                        "name": "__timestamp__",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.GetJTEventRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model": {
+            "post": {
+                "description": "添加模型到数据库中",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新增模型",
+                "parameters": [
+                    {
+                        "description": "InsertModelReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.InsertModelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ModelInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/": {
+            "delete": {
+                "description": "根据输入的模型ID数组删除模型",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "批量删除模型",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "id",
+                        "name": "list",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.ModelInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/delete/{id}": {
+            "delete": {
+                "description": "根据模型ID删除数据库中对应的模型",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除模型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ModelInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/id/{id}": {
+            "get": {
+                "description": "根据模型ID查找对应的模型",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "查找模型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ModelInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/reset": {
+            "get": {
+                "description": "重置模型数据库",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "重置模型数据库",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.GetModelsRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/update": {
+            "get": {
+                "description": "更新模型数据库",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "更新模型数据库",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.GetModelsRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/{id}": {
+            "put": {
+                "description": "根据ID字段查找到对应的模型，并将其更新为新输入的模型信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "更新模型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdateModelReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.UpdateModelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ModelInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/": {
+            "get": {
+                "description": "根据输入的task字段信息来查询布控任务信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "布控任务查询",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "type",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "violation_type",
+                        "name": "violation_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "stream_id",
+                        "name": "stream_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "stream_on",
+                        "name": "stream_on",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "create_time_begin",
+                        "name": "create_time_begin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "create_time_end",
+                        "name": "create_time_end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "simple",
+                        "name": "simple",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "org_codes",
+                        "name": "org_codes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "device_detail",
+                        "name": "device_detail",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonTaskRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.TaskInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新增一个布控任务到VMR中",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "创建布控任务",
+                "parameters": [
+                    {
+                        "description": "CreateTaskReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.CreateTaskReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.CommonTaskRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/del/{id}": {
+            "post": {
+                "description": "根据id来删除单个布控任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除单个布控任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.CommonTaskRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/start/{id}": {
+            "post": {
+                "description": "根据id来启动单个布控任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "启动布控任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.CommonTaskRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/stop/{id}": {
+            "post": {
+                "description": "根据id来停止布控任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "停止布控任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.CommonTaskRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/update/{id}": {
+            "post": {
+                "description": "根据id来更新布控任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "更新布控任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdateTaskReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.UpdateTaskReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.TaskInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/task/{id}": {
+            "get": {
+                "description": "根据id来获取单个布控任务",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "获取单个布控任务",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.TaskInfo"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -341,6 +1658,70 @@ var doc = `{
                 }
             }
         },
+        "jenkinsclient.Model": {
+            "type": "object",
+            "properties": {
+                "banner_detect_east_model.tronmodel": {
+                    "type": "string"
+                },
+                "banner_detect_od_model.tronmodel": {
+                    "type": "string"
+                },
+                "crowd_count_model.tronmodel": {
+                    "type": "string"
+                },
+                "crowd_region_count_local_model.tronmodel": {
+                    "type": "string"
+                },
+                "fight_classify_local_model.tronmodel": {
+                    "type": "string"
+                },
+                "head_count_model.tronmodel": {
+                    "type": "string"
+                },
+                "queue_count_local_model.tronmodel": {
+                    "type": "string"
+                }
+            }
+        },
+        "jenkinsclient.Models": {
+            "type": "object",
+            "properties": {
+                "models": {
+                    "type": "object",
+                    "$ref": "#/definitions/jenkinsclient.Model"
+                }
+            }
+        },
+        "jenkinsclient.Parmeter": {
+            "type": "object",
+            "properties": {
+                "analyzer_io_base_image": {
+                    "type": "string"
+                },
+                "analyzer_type": {
+                    "type": "string"
+                },
+                "branch": {
+                    "type": "string"
+                },
+                "models_config": {
+                    "type": "object",
+                    "$ref": "#/definitions/jenkinsclient.Models"
+                }
+            }
+        },
+        "proto.ClassDetect": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
         "proto.CommonRes": {
             "type": "object",
             "properties": {
@@ -351,6 +1732,34 @@ var doc = `{
                     "type": "object"
                 },
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.CommonTaskRes": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                }
+            }
+        },
+        "proto.Condition": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -381,12 +1790,97 @@ var doc = `{
                 }
             }
         },
+        "proto.CreateTaskReq": {
+            "type": "object",
+            "properties": {
+                "analyze_config": {
+                    "description": "模型参数",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "extra": {
+                    "description": "为业务方保留的自定义字段",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "id": {
+                    "description": "任务id, 必须全局唯一",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "read_stream_url": {
+                    "description": "读流地址, 提供前端辅助使用",
+                    "type": "string"
+                },
+                "region": {
+                    "description": "区域",
+                    "type": "string"
+                },
+                "snapshot": {
+                    "description": "布控截图",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "任务状态",
+                    "type": "string"
+                },
+                "stream_id": {
+                    "description": "StreamID来自device-api, 前端可以匹配到摄像头名称",
+                    "type": "string"
+                },
+                "stream_list": {
+                    "description": "多个摄像头",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.StreamSetting"
+                    }
+                },
+                "stream_on": {
+                    "description": "是否需要推流",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "任务类型",
+                    "type": "string"
+                },
+                "work_field": {
+                    "description": "任务运行字段",
+                    "type": "object",
+                    "$ref": "#/definitions/proto.WorkField"
+                },
+                "write_stream_url": {
+                    "description": "推流地址, 提供前端辅助使用",
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Detail": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "pts": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.PTS"
+                },
+                "scene": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
         "proto.EngineDeployInfo": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "analyzer_config": {
                     "description": "Region      string        ` + "`" + `json:\"region\" bson:\"region\"` + "`" + `     //根据不同的region来获取任务，区别测试",
                     "type": "string"
@@ -400,10 +1894,14 @@ var doc = `{
                 "error_info": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "image": {
                     "type": "string"
                 },
                 "job_info": {
+                    "type": "object",
                     "$ref": "#/definitions/analyzerclient.JobInfo"
                 },
                 "product": {
@@ -420,6 +1918,44 @@ var doc = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.EventExtra": {
+            "type": "object",
+            "properties": {
+                "processReason": {
+                    "type": "integer"
+                },
+                "processStatus": {
+                    "type": "integer"
+                },
+                "readStatus": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.GetEngineReq": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "enginestatus",
                     "type": "string"
                 },
                 "user_id": {
@@ -447,6 +1983,702 @@ var doc = `{
                 }
             }
         },
+        "proto.GetImageReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.GetImageRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.ImageInfo"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.GetJTEventRes": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.JTEventInfo"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "per_page": {
+                    "type": "integer"
+                },
+                "total_count": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.GetModelsRes": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/proto.ProductInfo"
+            }
+        },
+        "proto.GetTestCaseReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "test_data": {
+                    "type": "object"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.GetTestCaseRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.TestCaseInfo"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.ImageInfo": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Model"
+                    }
+                },
+                "product": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.IndexData": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "hour": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.InsertImageReq": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Model"
+                    }
+                },
+                "product": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.InsertModelReq": {
+            "type": "object",
+            "properties": {
+                "model_id": {
+                    "type": "integer"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "model_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.InsertTestCaseReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "test_data": {
+                    "type": "object"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.JTEventInfo": {
+            "type": "object",
+            "properties": {
+                "cameraId": {
+                    "type": "string"
+                },
+                "classStr": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "componentExtra": {
+                    "type": "object"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deeperInfo": {
+                    "type": "object"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "eventExtra": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.EventExtra"
+                },
+                "eventId": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "eventTypeStr": {
+                    "type": "string"
+                },
+                "extra": {
+                    "type": "object"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "indexData": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.IndexData"
+                },
+                "mark": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.Mark"
+                },
+                "originalConfig": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.OriginalConfig"
+                },
+                "originalViolationIndex": {
+                    "type": "integer"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "snapshot": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Snapshot"
+                    }
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.Summary"
+                },
+                "taskId": {
+                    "type": "string"
+                },
+                "task_type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "videoUri": {
+                    "type": "string"
+                },
+                "zone": {
+                    "type": "object"
+                }
+            }
+        },
+        "proto.LocalTime": {
+            "$ref": "#/definitions/time.Time"
+        },
+        "proto.Mark": {
+            "type": "object",
+            "properties": {
+                "commonEditMap": {
+                    "type": "object"
+                },
+                "discardReason": {
+                    "type": "integer"
+                },
+                "isClassEdit": {
+                    "type": "boolean"
+                },
+                "isLabelEdit": {
+                    "type": "boolean"
+                },
+                "isNonmotorTypeEdit": {
+                    "type": "boolean"
+                },
+                "marking": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Model": {
+            "type": "object",
+            "properties": {
+                "model_id": {
+                    "type": "integer"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "model_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.ModelInfo": {
+            "type": "object",
+            "properties": {
+                "accuracy": {
+                    "type": "string"
+                },
+                "complete_time": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.LocalTime"
+                },
+                "model_id": {
+                    "type": "integer"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "model_url": {
+                    "type": "string"
+                },
+                "speed": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Object": {
+            "type": "object",
+            "properties": {
+                "box": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "direction": {
+                    "type": "string"
+                },
+                "direction_score": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "special_car_type": {
+                    "type": "string"
+                },
+                "special_car_type_score": {
+                    "type": "integer"
+                },
+                "sub_type": {
+                    "type": "string"
+                },
+                "sub_type_score": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Origi": {
+            "type": "object",
+            "properties": {
+                "now": {
+                    "type": "string"
+                },
+                "objects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Object"
+                    }
+                },
+                "pts": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.OriginalConfig": {
+            "type": "object",
+            "properties": {
+                "rois": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.Rois"
+                },
+                "stream_push_address": {
+                    "type": "string"
+                },
+                "violations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Violation"
+                    }
+                }
+            }
+        },
+        "proto.PTS": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.ProductInfo": {
+            "type": "object",
+            "properties": {
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.ModelInfo"
+                    }
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "product_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Rois": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.Snapshot": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "type": "integer"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Detail"
+                    }
+                },
+                "featureUri": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "labelScore": {
+                    "type": "integer"
+                },
+                "origin": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.Origi"
+                },
+                "pts": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.PTS"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "sizeRatio": {
+                    "type": "integer"
+                },
+                "snapshotUri": {
+                    "type": "string"
+                },
+                "snapshotUriRaw": {
+                    "type": "string"
+                },
+                "snapshotUriThumb": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.StreamSetting": {
+            "type": "object",
+            "properties": {
+                "read_stream_url": {
+                    "description": "读流地址, 提供前端辅助使用",
+                    "type": "string"
+                },
+                "snapshot": {
+                    "description": "布控截图",
+                    "type": "string"
+                },
+                "stream_id": {
+                    "description": "StreamID来自device-api, 前端可以匹配到摄像头名称",
+                    "type": "string"
+                },
+                "stream_on": {
+                    "description": "是否需要推流",
+                    "type": "string"
+                },
+                "write_stream_url": {
+                    "description": "推流地址, 提供前端辅助使用",
+                    "type": "string"
+                }
+            }
+        },
+        "proto.Summary": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.ClassDetect"
+                },
+                "detect": {
+                    "type": "object",
+                    "$ref": "#/definitions/proto.ClassDetect"
+                }
+            }
+        },
+        "proto.TaskInfo": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "analyze_config": {
+                    "description": "模型参数",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "error_msg": {
+                    "description": "错误信息",
+                    "type": "string"
+                },
+                "extra": {
+                    "description": "为业务方保留的自定义字段",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "holder": {
+                    "type": "object"
+                },
+                "id": {
+                    "description": "任务id, 必须全局唯一",
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "region": {
+                    "description": "区域",
+                    "type": "string"
+                },
+                "snapshot": {
+                    "description": "布控截图",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "任务状态",
+                    "type": "string"
+                },
+                "stream_id": {
+                    "description": "StreamID来自device-api, 前端可以匹配到摄像头名称",
+                    "type": "string"
+                },
+                "stream_list": {
+                    "description": "多个摄像头",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.StreamSetting"
+                    }
+                },
+                "stream_on": {
+                    "description": "是否需要推流",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "任务类型",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "ver": {
+                    "description": "版本",
+                    "type": "integer"
+                },
+                "work_field": {
+                    "description": "任务运行字段",
+                    "type": "object",
+                    "$ref": "#/definitions/proto.WorkField"
+                }
+            }
+        },
+        "proto.TestCaseInfo": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "test_data": {
+                    "type": "object"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.TimeBucket": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "结束时间",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "开始时间",
+                    "type": "string"
+                }
+            }
+        },
         "proto.UpdateEgnineReq": {
             "type": "object",
             "properties": {
@@ -470,6 +2702,160 @@ var doc = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "proto.UpdateImageReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "description": "ID          bson.ObjectId ` + "`" + `json:\"_id,omitempty\"` + "`" + `",
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Model"
+                    }
+                },
+                "product": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.UpdateModelReq": {
+            "type": "object",
+            "properties": {
+                "model_id": {
+                    "type": "integer"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "model_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "proto.UpdateTaskReq": {
+            "type": "object",
+            "properties": {
+                "analyze_config": {
+                    "description": "模型参数",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "extra": {
+                    "description": "为业务方保留的自定义字段",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "snapshot": {
+                    "description": "布控截图, base64编码",
+                    "type": "string"
+                },
+                "stream_on": {
+                    "description": "是否推流",
+                    "type": "string"
+                }
+            }
+        },
+        "proto.UpdateTestCaseReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "test_data": {
+                    "type": "object"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "proto.Violation": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Condition"
+                    }
+                },
+                "enable_roi": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "on": {
+                    "type": "boolean"
+                },
+                "roi": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "threshold": {
+                    "type": "integer"
+                },
+                "traffic_light_box": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "proto.WorkField": {
+            "type": "object",
+            "properties": {
+                "is_work_time_enabled": {
+                    "type": "boolean"
+                },
+                "work_times": {
+                    "description": "布控生效的时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.WorkTime"
+                    }
+                }
+            }
+        },
+        "proto.WorkTime": {
+            "type": "object",
+            "properties": {
+                "time_buckets": {
+                    "description": "一天的生效时间段",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.TimeBucket"
+                    }
+                },
+                "weekday": {
+                    "description": "周日~周六 取值(0~6)",
+                    "type": "integer"
                 }
             }
         }

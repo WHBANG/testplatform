@@ -6,6 +6,9 @@ set -x
 #TAG=latest ./build-docker.sh videotask videoindexworker ...
 if [ $# -ne 0 ]; then
     apps=("$@")
+else 
+    echo "usage:./build-docker.sh [mongo test_platform]"
+    exit 1
 fi 
 
 VERSION=`date -u '+%Y%m%d'`-`git rev-parse --short HEAD`

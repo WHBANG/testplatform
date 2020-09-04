@@ -1,0 +1,46 @@
+version: '2.3'
+services:
+#   mongo:
+#     image: mongo:3.6.7
+#     restart: always
+#     command: mongod --config /etc/mongod.conf
+#     volumes: 
+#     - ./mongod.conf:/etc/mongod.conf:ro
+#     - ./mongo-data/db:/data/db
+#     - ./mongo-data/log:/data/log
+#     ports: 
+#     - "27077:27017"
+#     networks:
+#       test_platform:
+#         aliases: 
+#           - mongo
+
+
+  testplatform:
+    #build: ../docker/test_platform
+    #image: test_platform
+    #container_name: test_platform
+    image: reg.supremind.info/wuzhenzhou/test_platform:20200722-b8642ab
+    restart: always
+    volumes:
+    - ./service.conf:/workspace/config/service.conf:ro
+    ports:
+    - "7000:7000"
+    - "9899:9899"
+    #extra_hosts:
+    #- "jenkins.supremind.com:100.100.142.75"
+    depends_on:
+    - mongo
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+        max-file: "2"
+    networks:
+      test_platform:
+        aliases: 
+          - testplatform
+
+networks:
+  test_platform:
+    driver: bridge

@@ -18,7 +18,7 @@ type TestCaseMgnt interface {
 	Insert(*proto.TestCaseInfo) (*proto.TestCaseInfo, error)
 	Update(id bson.ObjectId, updateInfo map[string]interface{}) (*proto.TestCaseInfo, error)
 	Delete(id bson.ObjectId) (*proto.TestCaseInfo, error)
-	Find(id bson.ObjectId) (*proto.TestCaseInfo, error)
+	Find(id bson.ObjectId) (*proto.TestCase, error)
 	LikeFind(query bson.M, pageint, size int) (data []proto.TestCaseInfo, total int, err error)
 	BatchDelete(list []bson.ObjectId) ([]proto.TestCaseInfo, error)
 }
@@ -103,12 +103,12 @@ func (m *TestCase) BatchDelete(list []bson.ObjectId) ([]proto.TestCaseInfo, erro
 	return testcase, nil
 }
 
-func (m *TestCase) Find(id bson.ObjectId) (*proto.TestCaseInfo, error) {
+func (m *TestCase) Find(id bson.ObjectId) (*proto.TestCase, error) {
 	session := m.session.Clone()
 	defer session.Close()
 	tc := session.DB(m.DB).C(m.collName)
 
-	testcase := &proto.TestCaseInfo{}
+	testcase := &proto.TestCase{}
 	err := tc.Find(bson.M{"_id": id}).One(testcase)
 	if err != nil {
 		log.Error("Find Error: ", err)

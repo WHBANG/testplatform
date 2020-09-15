@@ -115,7 +115,7 @@ func (handler *HandlerRouter) UpdateImageHandler(c *gin.Context) {
 		proto.DefaultRet(c, nil, err)
 		return
 	}
-
+	mapReq["status"] = bproto.Created
 	img, err := h.mgnt.Update(id, mapReq)
 	proto.DefaultRet(c, img, err)
 }
@@ -184,6 +184,7 @@ func (Handler *HandlerRouter) InsertImageHandler(c *gin.Context) {
 	image.UserID = insertReq.UserID
 	image.Description = insertReq.Description
 	image.Models = insertReq.Models
+	image.Status = bproto.Created
 	img, err := h.mgnt.Insert(&image)
 	if err != nil {
 		log.Error("insert:insert err:", err)

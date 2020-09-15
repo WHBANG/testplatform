@@ -96,8 +96,8 @@ func (j *JenkinsClient) BuildJob(p *Parmeter, config Config) (int64, error) {
 	reqMap["MODELS_CONFIG"] = string(data)
 	reqMap["ANALYZER_TYPE"] = p.AnalyzerType
 
-	j.Cli.BuildJob(j.Name, reqMap)
-
+	num, err := j.Cli.BuildJob(j.Name, reqMap)
+	fmt.Println(num)
 	return number, nil
 }
 

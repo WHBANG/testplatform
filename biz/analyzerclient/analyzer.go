@@ -10,8 +10,14 @@ import (
 )
 
 const (
-	resourceReference string = "2080-1" //todo 可配置
+	resourceReference string = "2080ti-1" //todo 可配置
 )
+
+type AnalyzerClientConfig struct {
+	atomclient.AtomClientConfig
+	ResourceRef        string `json:"resource_ref"`
+	ResourceRefCreator string `json:"resource_ref_creator"`
+}
 
 type AnalyzerDeployInfo struct {
 	JobName   string
@@ -21,7 +27,8 @@ type AnalyzerDeployInfo struct {
 }
 
 type AnalyzerClient struct {
-	atomC *atomclient.AtomClient
+	atomC  *atomclient.AtomClient
+	config *AnalyzerClientConfig
 }
 
 type JobInfo struct {
@@ -35,13 +42,25 @@ type AnalyzerInterface interface {
 	StopAnalyzer(info *JobInfo) error
 	RemoveAnalyzer(info *JobInfo) error
 	Status(info *JobInfo) error
+	Close() error
 }
 
-func NewAnalyzerClient(ctx context.Context, atomC *atomclient.AtomClient) (AnalyzerInterface, error) {
+func NewAnalyzerClient(ctx context.Context, config *AnalyzerClientConfig) (AnalyzerInterface, error) {
+	atomC, err := atomclient.NewAtomClient(config.AtomClientConfig)
+	if err != nil {
+		log.Errorf("NewAtomClient  err: %s ", err)
+		return nil, err
+	}
+
 	c := &AnalyzerClient{
-		atomC: atomC,
+		atomC:  atomC,
+		config: config,
 	}
 	return c, nil
+}
+
+func (c *AnalyzerClient) Close() error {
+	return c.atomC.Close()
 }
 
 func (c *AnalyzerClient) CreateAnalyzer(info *AnalyzerDeployInfo) (*JobInfo, error) {
@@ -70,7 +89,7 @@ func (c *AnalyzerClient) CreateAnalyzer(info *AnalyzerDeployInfo) (*JobInfo, err
 					// Env: map[string]string{
 					// 	"test-env": "value",
 					// },
-					Package:  &api.ResourceReference{Name: resourceReference},
+					Package:  &api.ResourceReference{Name: c.config.ResourceRef, Creator: c.config.ResourceRefCreator},
 					Mounting: &api.JobMounting{
 						// Volumes:  []*api.VolumeMounting{{Volume: &api.ResourceReference{Name: "test-vol", Creator: hackUsername}}},
 						// Datasets: []*api.DatasetVersionRef{{Dataset: "test-ds", Creator: hackUsername, Version: "test-version"}},

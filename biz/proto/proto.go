@@ -7,10 +7,19 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type ImageStatus int32
+
+const (
+	Created  ImageStatus = 0
+	Building ImageStatus = 1
+	Done     ImageStatus = 2
+)
+
 type ImageInfo struct {
 	ID          bson.ObjectId `json:"_id" bson:"_id"`
 	Image       string        `json:"image" bson:"image"`
 	UserID      int           `json:"user_id" bson:"user_id"`
+	Status      ImageStatus   `json:"status" bson:"status"`
 	Description string        `json:"description" bson:"description"`
 	Product     string        `json:"product" bson:"product"`
 	Models      []Model       `json:"models" bson:"models"`

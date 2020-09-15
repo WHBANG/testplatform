@@ -95,3 +95,33 @@ func GetVerTLSConfig(CAPath string) (*tls.Config, error) {
 	}
 	return TlsConfig, nil
 }
+
+/*
+func CreateSubDevice(flowCli client.IFlowClient, deviceName, url string, maxChan int, globalDevId, namePrefix string) (device *flow.Device, err error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(int64(maxChan-1)))
+	if err != nil {
+		log.Errorf("rand.Int(rand.Reader, big.NewInt(TestArg.MaxChannel)): %+v", err)
+		return
+	}
+	channel := int(n.Int64()) + 1
+	subDevice := CreateSubDeviceParams{
+		Type:           1,
+		OrganizationID: "000000000000000000000000",
+		DeviceID:       globalDevId,
+		Channel:        channel,
+		Attribute: SubDeviceAttribute{
+			Name:              namePrefix + "_" + deviceName,
+			DiscoveryProtocol: 2,
+			UpstreamURL:       url,
+			Vendor:            1,
+		},
+	}
+
+	device, err = flowCli.CreateDevice(context.Background(), subDevice)
+	if err != nil {
+		log.Errorf("t.FlowClient.CreateDevice(%+v):%+v", subDevice, err)
+	}
+
+	return
+}
+*/

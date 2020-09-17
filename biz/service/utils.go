@@ -1,15 +1,20 @@
 package service
 
 import (
+	"context"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"math/big"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"time"
 
+	"git.supremind.info/product/visionmind/com/flow"
+	client "git.supremind.info/product/visionmind/com/go_sdk"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -96,7 +101,21 @@ func GetVerTLSConfig(CAPath string) (*tls.Config, error) {
 	return TlsConfig, nil
 }
 
-/*
+type CreateSubDeviceParams struct {
+	Type           int                `json:"type"`
+	OrganizationID string             `json:"organization_id"`
+	DeviceID       string             `json:"device_id"`
+	Channel        int                `json:"channel"`
+	Attribute      SubDeviceAttribute `json:"attribute"`
+}
+
+type SubDeviceAttribute struct {
+	Name              string `json:"name"`
+	DiscoveryProtocol int    `json:"discovery_protocol"`
+	UpstreamURL       string `json:"upstream_url"`
+	Vendor            int    `json:"vendor"`
+}
+
 func CreateSubDevice(flowCli client.IFlowClient, deviceName, url string, maxChan int, globalDevId, namePrefix string) (device *flow.Device, err error) {
 	n, err := rand.Int(rand.Reader, big.NewInt(int64(maxChan-1)))
 	if err != nil {
@@ -121,7 +140,5 @@ func CreateSubDevice(flowCli client.IFlowClient, deviceName, url string, maxChan
 	if err != nil {
 		log.Errorf("t.FlowClient.CreateDevice(%+v):%+v", subDevice, err)
 	}
-
 	return
 }
-*/

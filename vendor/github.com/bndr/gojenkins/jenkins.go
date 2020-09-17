@@ -257,7 +257,7 @@ func (j *Jenkins) BuildJob(name string, options ...interface{}) (int64, error) {
 	job := Job{Jenkins: j, Raw: new(JobResponse), Base: "/job/" + name}
 	var params map[string]string
 	if len(options) > 0 {
-		params = options[0].(map[string]string)
+		params, _ = options[0].(map[string]string)
 	}
 	return job.InvokeSimple(params)
 }

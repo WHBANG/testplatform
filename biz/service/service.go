@@ -11,13 +11,26 @@ type Config struct {
 	VMRClient
 }
 
+/*
+ 		"flow_host":"100.100.142.75:10066",
+        "web_general":"100.100.142.75:10080",
+        "is_https":false,
+        "ca_path":"",
+        "username":"super",
+        "password":"smai123",
+        "global_device_id": "vms229.QN00115a0ecb88f9ab69",
+        "name_prefix": "test_wh"
+*/
+
 type VMRClient struct {
-	FlowHost   string `json:"flow_host"`
-	WebGeneral string `json:"web_general"`
-	IsHTTPS    bool   `json:"is_https"`
-	CAPath     string `json:"ca_path"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
+	FlowHost       string `json:"flow_host"`
+	WebGeneral     string `json:"web_general"`
+	IsHTTPS        bool   `json:"is_https"`
+	CAPath         string `json:"ca_path"`
+	Username       string `json:"username"`
+	Password       string `json:"password"`
+	GlobalDeviceID string `json:"global_device_id"`
+	NamePrefix     string `json:"name_prefix"`
 }
 
 type TestPlatformSvc struct {

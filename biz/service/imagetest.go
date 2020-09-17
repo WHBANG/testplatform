@@ -178,13 +178,13 @@ func (Handler *HandlerRouter) InsertImageHandler(c *gin.Context) {
 		return
 	}
 	var image bproto.ImageInfo
-	image.ID = insertReq.ID
 	image.Image = insertReq.Image
 	image.Product = insertReq.Product
 	image.UserID = insertReq.UserID
 	image.Description = insertReq.Description
 	image.Models = insertReq.Models
 	image.Status = bproto.Created
+	image.Type = insertReq.Type
 	img, err := h.mgnt.Insert(&image)
 	if err != nil {
 		log.Error("insert:insert err:", err)
@@ -199,11 +199,10 @@ func (Handler *HandlerRouter) InsertImageHandler(c *gin.Context) {
 // @Accept json
 // @Param id path string true "id"
 // @Success 200 {object}  proto.CommonRes{data=proto.ImageInfo}
-// @Router /v1/image/ [get]
+// @Router /v1/image/{id}/find [get]
 func (handler *HandlerRouter) FindImageHandler(c *gin.Context) {
 
-	log.Println("find")
-	id := bson.ObjectIdHex(c.Param("id")) //获取url后面的参数
+	id := bson.ObjectIdHex(c.Param("param"))
 	image, err := h.mgnt.Find(id)
 	if err != nil {
 		proto.DefaultRet(c, nil, err)
@@ -282,13 +281,39 @@ func (handler *HandlerRouter) LikefindImageHandler(c *gin.Context) {
 	}
 }
 
+// @Summary 按镜像类别进行查询
+// @Description 按镜像类别进行查询
+// @Accept json
+// @Param type path string true "type"
+// @Success 200 {object}  proto.CommonRes{data=[]proto.ImageInfo}
+// @Router /v1/image/{type}/group/ [get]
+func (handler *HandlerRouter) FindImageByTypeHandler(c *gin.Context) {
+
+	image_type := c.Param("param")
+	var imageType bproto.ImageType
+	if image_type == "analyzer_io" {
+		imageType = bproto.IO
+	} else {
+		imageType = bproto.FLOW
+	}
+	images, err := h.mgnt.FindByType(imageType)
+	if err != nil {
+		proto.DefaultRet(c, nil, err)
+	} else {
+		proto.DefaultRet(c, images, err)
+	}
+}
+
+
+
 func ImageHandler(group *gin.RouterGroup) {
 
 	var svc HandlerRouter
 	group.DELETE("/image/:id", svc.DeleteImageHandler)
 	group.PUT("/image/:id", svc.UpdateImageHandler)
 	group.POST("/image", svc.InsertImageHandler)
-	group.GET("/image/:id", svc.FindImageHandler)
+	group.GET("/image/:param/find", svc.FindImageHandler)
+	group.GET("/image/:param/group", svc.FindImageByTypeHandler)
 	group.GET("/image", svc.LikefindImageHandler)
 	group.DELETE("/image", svc.BatchDeleteImageHandler)
 }

@@ -1,0 +1,17 @@
+stages:
+  - test
+
+variables:
+  GO111MODULE: "on"
+  GOPROXY: https://goproxy.cn,direct
+  GOPRIVATE: git.supremind.info
+  
+go_test:
+  stage: test
+  image: golang:1.13-stretch
+  tags:
+    - dind
+  before_script:
+    - echo "machine git.supremind.info login gitlab-ci-token password ${CI_JOB_TOKEN}"> ~/.netrc
+  script:
+    - go test ./...

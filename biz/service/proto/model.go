@@ -11,17 +11,23 @@ import (
 	ModelURL  string `json:"model_url" bson:"model_url"`
 */
 type UpdateModelReq struct {
-	ModelID   int    `json:"model_id"`
-	ModelType string `json:"model_type,omitempty"`
-	ModelName string `json:"model_name,omitempty"`
-	ModelURL  string `json:"model_url,omitempty"`
+	ModelID      int    `json:"model_id"`
+	ModelType    string `json:"model_type,omitempty"`
+	ModelName    string `json:"model_name,omitempty"`
+	ModelURL     string `json:"model_url,omitempty"`
+	ModelVersion string `json:"model_version"`
+	ModelUser    string `json:"model_user"`
+	Description  string `json:"description"`
 }
 
 type InsertModelReq struct {
-	ModelID   int    `json:"model_id"`
-	ModelType string `json:"model_type"`
-	ModelName string `json:"model_name"`
-	ModelURL  string `json:"model_url"`
+	ModelID      int    `json:"model_id"`
+	ModelType    string `json:"model_type"`
+	ModelName    string `json:"model_name"`
+	ModelURL     string `json:"model_url"`
+	ModelVersion string `json:"model_version"`
+	ModelUser    string `json:"model_user"`
+	Description  string `json:"description"`
 }
 
 type DeleteModelReq struct {

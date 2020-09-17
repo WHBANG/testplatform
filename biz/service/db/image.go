@@ -20,6 +20,7 @@ type ImageMgnt interface {
 	Find(id bson.ObjectId) (*bproto.ImageInfo, error)
 	Likefind(query bson.M, page, size int) ([]bproto.ImageInfo, int, error)
 	BatchDelete(id []bson.ObjectId) ([]bproto.ImageInfo, error)
+	FindByType(imageType bproto.ImageType) ([]bproto.ImageInfo, error)
 	/*
 		LikefindByImage(msg string) ([]proto.ImageInfo, error)
 		FindByUserID(userID int) ([]proto.ImageInfo, error)
@@ -127,6 +128,20 @@ func (d *MongoImage) Find(id bson.ObjectId) (*bproto.ImageInfo, error) {
 		return nil, err
 	}
 	return image, err
+}
+
+func (d *MongoImage) FindByType(imageType bproto.ImageType) ([]bproto.ImageInfo, error) {
+	session := d.session.Clone()
+	defer session.Close()
+	c := session.DB(d.DB).C(imageCollName)
+
+	images := []bproto.ImageInfo{}
+	err := c.Find(bson.M{"type": imageType}).All(&images)
+	if err != nil {
+		log.Error("Find Error:", err)
+		return nil, err
+	}
+	return images, err
 }
 
 func (d *MongoImage) Likefind(query bson.M, page, size int) ([]bproto.ImageInfo, int, error) {

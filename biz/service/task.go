@@ -2,8 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strconv"
+	"strings"
 	"time"
 
+	"git.supremind.info/product/visionmind/com/flow"
 	bproto "git.supremind.info/testplatform/biz/proto"
 	"git.supremind.info/testplatform/biz/service/db"
 	"git.supremind.info/testplatform/biz/service/proto"
@@ -39,15 +43,60 @@ type Client struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+type TaskConf struct {
+	NamePrefix     string `json:"name_prefix"`
+	GlobalDeviceID string `json:"global_device_id"`
+}
 
 type TaskHandlerRouter struct {
 	task      db.TaskMgnt
 	TaskHost  *TargetHost
 	eventHost *TargetHost
-	client    *Client
+	Client    *Client
+	Conf      *TaskConf
 }
 
 var k TaskHandlerRouter
+
+// 创建任务
+func (this *TaskHandlerRouter) CreateTask(task *flow.Task, streamID, snapshotURL, region string) (err error) {
+	if task == nil {
+		err = errors.New("task is null")
+		log.Errorf("createTask: %+v", err)
+		return
+	}
+	parts := strings.SplitN(this.Conf.GlobalDeviceID, ".", 2)
+	if len(parts) < 2 {
+		err = errors.New("invalid vms device")
+		return
+	}
+	streamID = parts[0] + "." + streamID
+
+	task.ID = this.Conf.NamePrefix + "_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	task.Name += "_" + this.Conf.NamePrefix
+	task.StreamID = streamID
+	task.Snapshot = snapshotURL
+	task.StreamON = "ON"
+	task.AnalyzeConfig["enable_tracking_debug"] = true
+	task.Region = region
+	violations, ok := task.AnalyzeConfig["violations"].([]interface{})
+	if !ok {
+		return errors.New("case.json文件格式错误")
+	}
+	for i, _ := range violations {
+		if v, ok := violations[i].(map[string]interface{}); ok {
+			v["on"] = true
+		}
+	}
+
+	task.AnalyzeConfig["tracking_threshold"] = 0.6
+	//taskclient := client.NewTaskMgmClient()
+	if err != nil {
+		log.Errorf("t.TaskClient.CreateTask(%+v):%+v", task, err)
+	}
+
+	return
+}
 
 func (this *TaskHandlerRouter) InsertTaskJsonHandler(c *gin.Context) {
 	var insertReq bproto.CreateTaskReq
@@ -207,7 +256,7 @@ func TaskJsonHandler(group *gin.RouterGroup) {
 
 func TaskHandler(group *gin.RouterGroup) {
 
-	group.Use(MiddleWare(k.client))
+	group.Use(MiddleWare(k.Client))
 	group.GET("/task", k.GetTaskListHandler)
 	group.POST("/task", k.CreateTaskHandler)
 	group.GET("/task/:id", k.GetTaskHandler)
@@ -219,7 +268,7 @@ func TaskHandler(group *gin.RouterGroup) {
 }
 
 func EventHandler(group *gin.RouterGroup) {
-	group.Use(MiddleWare(k.client))
+	group.Use(MiddleWare(k.Client))
 	group.GET("/jt_event/events", k.GetEventHandler)
 }
 
@@ -236,9 +285,13 @@ func TaskHandlerSvc(ctx context.Context, task db.TaskMgnt, group *gin.RouterGrou
 		IsHTTPS: conf.IsHTTPS,
 		CAPath:  conf.CAPath,
 	}
-	k.client = &Client{
+	k.Client = &Client{
 		Username: conf.Username,
 		Password: conf.Password,
+	}
+	k.Conf = &TaskConf{
+		NamePrefix:     conf.NamePrefix,
+		GlobalDeviceID: conf.GlobalDeviceID,
 	}
 	go TaskJsonHandler(group)
 	go TaskHandler(group)

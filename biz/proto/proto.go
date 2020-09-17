@@ -7,12 +7,20 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type ImageStatus int32
+type ImageStatus string
 
 const (
-	Created  ImageStatus = 0
-	Building ImageStatus = 1
-	Done     ImageStatus = 2
+	Created  ImageStatus = "Created"
+	Building ImageStatus = "Building"
+	Done     ImageStatus = "Done"
+	Failed   ImageStatus = "Failed"
+)
+
+type ImageType string
+
+const (
+	FLOW ImageType = "analyzer-flow"
+	IO   ImageType = "analyzer-io"
 )
 
 type ImageInfo struct {
@@ -20,6 +28,7 @@ type ImageInfo struct {
 	Image       string        `json:"image" bson:"image"`
 	UserID      int           `json:"user_id" bson:"user_id"`
 	Status      ImageStatus   `json:"status" bson:"status"`
+	Type        ImageType     `json:"type" bson:"type"`
 	Description string        `json:"description" bson:"description"`
 	Product     string        `json:"product" bson:"product"`
 	Models      []Model       `json:"models" bson:"models"`

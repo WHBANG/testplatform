@@ -2,25 +2,24 @@ package proto
 
 import (
 	bproto "git.supremind.info/testplatform/biz/proto"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type InsertImageReq struct {
-	ID          bson.ObjectId  `json:"_id,omitempty"`
-	Image       string         `json:"image"`
-	UserID      int            `json:"user_id"`
-	Description string         `json:"description"`
-	Product     string         `json:"product"`
-	Models      []bproto.Model `json:"models" bson:"models"`
+	Image       string           `json:"image"`
+	UserID      int              `json:"user_id"`
+	Description string           `json:"description"`
+	Product     string           `json:"product"`
+	Models      []bproto.Model   `json:"models" bson:"models"`
+	Type        bproto.ImageType `json:"type,omitempty"`
 }
 
 type UpdateImageReq struct {
-	//ID          bson.ObjectId `json:"_id,omitempty"`
-	Image       string         `json:"image,omitempty"`
-	UserID      int            `json:"user_id,omitempty"`
-	Description string         `json:"description,omitempty"`
-	Product     string         `json:"product,omitempty"`
-	Models      []bproto.Model `json:"models,omitempty"`
+	Image       string           `json:"image,omitempty"`
+	UserID      int              `json:"user_id,omitempty"`
+	Description string           `json:"description,omitempty"`
+	Product     string           `json:"product,omitempty"`
+	Models      []bproto.Model   `json:"models,omitempty"`
+	Type        bproto.ImageType `json:"type,omitempty"`
 }
 
 type ImageQuery struct {

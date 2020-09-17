@@ -38,7 +38,7 @@ type ModelHandler struct {
 var m ModelHandler
 
 // @Summary 更新模型
-// @Description 根据ID字段查找到对应的模型，并将其更新为新输入的模型信息
+// @Description 根据ID字段查找到对应的模型，并将其更新
 // @Accept json
 // @Param id path string true "id"
 // @Param example body proto.UpdateModelReq true "UpdateModelReq"
@@ -74,7 +74,7 @@ func (handler *ModelHandler) UpdateModelHandler(c *gin.Context) {
 // @Accept json
 // @Param id path string true "id"
 // @Success 200 {object}  proto.CommonRes{data=proto.ModelInfo}
-// @Router /v1/model/delete/{id} [delete]
+// @Router /v1/model/{id}/delete [delete]
 func (handler *ModelHandler) DeleteModelHander(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
@@ -94,13 +94,13 @@ func (handler *ModelHandler) DeleteModelHander(c *gin.Context) {
 // @Summary 批量删除模型
 // @Description 根据输入的模型ID数组删除模型
 // @Accept json
-// @Param list query []string true "id" collectionFormat(multi)
+// @Param list_id query []string true "list_id" collectionFormat(multi)
 // @Success 200 {object}  proto.CommonRes{data=[]proto.ModelInfo}
 // @Router /v1/model/ [delete]
 func (handler *ModelHandler) BatchDeleteModelHandler(c *gin.Context) {
 
 	var modelList []string
-	modelList = c.QueryArray("list")
+	modelList = c.QueryArray("list_id")
 	len := len(modelList)
 	if len == 0 {
 		err := errors.New("Please Select The Data You Want To Delete!")
@@ -159,7 +159,7 @@ func (Handler *ModelHandler) InsertModelHandler(c *gin.Context) {
 // @Accept json
 // @Param id path string true "id"
 // @Success 200 {object}  proto.CommonRes{data=proto.ModelInfo}
-// @Router /v1/model/id/{id} [get]
+// @Router /v1/model/find/{id} [get]
 func (handler *ModelHandler) FindModelHandler(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -208,7 +208,10 @@ func GetReleaseModels() (data []bproto.Model, err error) {
 			tmp.ModelURL = models[j].ModelURL
 			tmp.ModelID = models[j].ModelID
 			tmp.ModelName = models[j].ModelName
-			tmp.ModelType = models[j].ModelType
+			tmp.ModelType = resp[i].ProductName
+			tmp.Description = models[j].ModelType
+			tmp.ModelUser = models[j].Username
+			tmp.ModelVersion = "v1"
 			data = append(data, tmp)
 		}
 	}
@@ -245,6 +248,14 @@ func (handler *ModelHandler) InitModelsHandler() error {
 	return nil
 }
 
+func (handler *ModelHandler) getReleaseModels(c *gin.Context) {
+	data, err := GetReleaseModels()
+	if err != nil {
+		proto.DefaultRet(c, nil, err)
+	}
+	proto.DefaultRet(c, data, nil)
+}
+
 // @Summary 更新模型数据库
 // @Description 更新模型数据库
 // @Accept json
@@ -261,16 +272,34 @@ func (handler *ModelHandler) UpdateModelsHandler(c *gin.Context) {
 	proto.DefaultRet(c, nil, nil)
 }
 
+// @Summary 根据模型类别获取模型
+// @Description 根据模型类别获取模型
+// @Accept json
+// @Success 200 {object}  proto.CommonRes{data=proto.GetModelsRes}
+// @Router /v1/model/group/{type} [get]
+func (handler *ModelHandler) GetModelsByGroupHandler(c *gin.Context) {
+	mode_type := c.Param("type")
+	data, err := handler.mgnt.FindByModelType(mode_type)
+	if err != nil {
+		proto.DefaultRet(c, nil, err)
+		return
+	}
+	proto.DefaultRet(c, data, nil)
+}
+
 func ModelHandlerRouter(group *gin.RouterGroup) {
 
 	group.GET("/model/reset", m.ResetModelsHandler)
 	group.GET("/model/update", m.UpdateModelsHandler)
+	group.GET("model/group/:type", m.GetModelsByGroupHandler)
 
+	//用于测试
+	group.GET("/model", m.getReleaseModels)
 	group.PUT("/model/:id", m.UpdateModelHandler)
-	group.DELETE("/model/delete/:id", m.DeleteModelHander)
-	group.DELETE("/model/batchDelete", m.BatchDeleteModelHandler)
+	group.DELETE("/model/:id/delete", m.DeleteModelHander)
+	group.DELETE("/model", m.BatchDeleteModelHandler)
 	group.POST("/model", m.InsertModelHandler)
-	group.GET("model/id/:id", m.FindModelHandler)
+	group.GET("model/find/:id", m.FindModelHandler)
 
 }
 

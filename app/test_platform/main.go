@@ -13,7 +13,6 @@ import (
 
 	_ "git.supremind.info/testplatform/app/test_platform/docs"
 	"git.supremind.info/testplatform/biz/analyzerclient"
-	"git.supremind.info/testplatform/biz/atomclient"
 	"git.supremind.info/testplatform/biz/jenkinsclient"
 	"git.supremind.info/testplatform/biz/service"
 	"git.supremind.info/testplatform/biz/service/db"
@@ -33,13 +32,13 @@ import (
 // @termsOfService http://swagger.io/terms/
 
 type Config struct {
-	Host        string                      `json:"host"`
-	Mode        string                      `json:"mode"`
-	AtomClient  atomclient.AtomClientConfig `json:"atom_client"`
-	ConfigFiles map[string]string           `json:"config_files"`
-	Mongodb     db.MongodbConfig            `json:"mongodb"`
-	Jenkins     jenkinsclient.Config        `json:jenkins`
-	VMRClient   service.VMRClient           `json:"vmr_client"`
+	Host                 string                              `json:"host"`
+	Mode                 string                              `json:"mode"`
+	AnalyzerClientConfig analyzerclient.AnalyzerClientConfig `json:"analyzer_client"`
+	ConfigFiles          map[string]string                   `json:"config_files"`
+	Mongodb              db.MongodbConfig                    `json:"mongodb"`
+	Jenkins              jenkinsclient.Config                `json:jenkins`
+	VMRClient            service.VMRClient                   `json:"vmr_client"`
 }
 
 func checkConfigFiles(configM map[string]string) error {
@@ -101,13 +100,7 @@ func main() {
 	session, _ := db.GetMgoDBSession()
 	defer session.Close()
 
-	atomC, err := atomclient.NewAtomClient(conf.AtomClient)
-	if err != nil {
-		log.Panicf("NewAtomClient  err: %s ", err)
-	}
-	defer atomC.Close()
-
-	analyzerC, err := analyzerclient.NewAnalyzerClient(context.Background(), atomC)
+	analyzerC, err := analyzerclient.NewAnalyzerClient(context.Background(), &conf.AnalyzerClientConfig)
 	if err != nil {
 		log.Panicf("NewAtomClient  err: %s ", err)
 	}

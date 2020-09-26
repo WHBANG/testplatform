@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"time"
 
+	"git.supremind.info/testplatform/biz/jenkinsclient"
 	bproto "git.supremind.info/testplatform/biz/proto"
 	"git.supremind.info/testplatform/biz/service/db"
 	"git.supremind.info/testplatform/biz/service/proto"
@@ -25,6 +28,7 @@ type ImageHandlerRouter interface {
 	//LikeFindByUpdateDate(c *gin.Context)
 	//LikeFindByCreateDate(c *gin.Context)
 	BatchDeleteImageHandler(c *gin.Context)
+	CreateImageHandler(c *gin.Context)
 }
 
 type HandlerRouter struct {
@@ -161,6 +165,79 @@ func (handler *HandlerRouter) BatchDeleteImageHandler(c *gin.Context) {
 		return
 	}
 	proto.DefaultRet(c, image, err)
+}
+
+// @Summary 创建镜像
+// @Description 创建镜像
+// @Accept json
+// @Param example body proto.CreateImageReq true "CreateImageReq"
+// @Success 200 {object}  proto.CommonRes{data=proto.ImageInfo}
+// @Router /v1/image/create [post]
+func (Handler *HandlerRouter) CreateImageHandler(c *gin.Context) {
+
+	var insertReq proto.CreateImageReq
+	err := c.BindJSON(&insertReq)
+	if err != nil {
+		proto.DefaultRet(c, nil, err)
+		return
+	}
+
+	par := jenkinsclient.Parmeter{}
+	par.AnalyzerIoBaseImage = insertReq.AnalyzerIOBaseImage
+	par.Branch = "dev"
+	par.AnalyzerType = insertReq.AnalyzerType
+	par.ImageName = insertReq.ImageName
+	par.ModelsConfig = insertReq.ModelConfig
+
+	//调用jenkins
+	num, err := jenkinsclient.JenkinsClientBuildHandler(&par)
+	if err != nil || num == -1 {
+		proto.DefaultRet(c, nil, err)
+		return
+	}
+
+	//插入数据库
+	var image bproto.ImageInfo
+	image.ID = bson.NewObjectId()
+	image.Image = insertReq.ImageName
+	image.Product = insertReq.Product
+	image.UserID = 123 //暂时不考虑用户
+	image.Description = insertReq.Description
+	image.Status = bproto.Building
+	image.Type = bproto.IO
+	err = json.Unmarshal([]byte(insertReq.ModelConfig), &image.Models)
+	if err != nil {
+		proto.DefaultRet(c, nil, err)
+		return
+	}
+	img, err := h.mgnt.Insert(&image)
+	if err != nil {
+		log.Error("insert:insert err:", err)
+		proto.DefaultRet(c, nil, err)
+	} else {
+		proto.DefaultRet(c, img, nil)
+	}
+
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		for {
+			time.Sleep(200 * time.Millisecond)
+			t, err := jenkinsclient.GetBuildResultHandler(num)
+			if t == 0 && err == nil {
+				continue
+			}
+			if t == -1 && err == nil {
+				image.Status = bproto.Done
+			} else {
+				image.Status = bproto.Done
+			}
+			var mapReq map[string]interface{}
+			err = proto.ParseMapFromStruct(image, &mapReq)
+			h.mgnt.Update(image.ID, mapReq)
+			return
+		}
+	}()
+
 }
 
 // @Summary 新增镜像信息
@@ -304,8 +381,6 @@ func (handler *HandlerRouter) FindImageByTypeHandler(c *gin.Context) {
 	}
 }
 
-
-
 func ImageHandler(group *gin.RouterGroup) {
 
 	var svc HandlerRouter
@@ -316,6 +391,7 @@ func ImageHandler(group *gin.RouterGroup) {
 	group.GET("/image/:param/group", svc.FindImageByTypeHandler)
 	group.GET("/image", svc.LikefindImageHandler)
 	group.DELETE("/image", svc.BatchDeleteImageHandler)
+	group.POST("/image/create", svc.CreateImageHandler)
 }
 
 func ImageHandlerSvc(ctx context.Context, imageMgnt db.ImageMgnt, group *gin.RouterGroup) {

@@ -35,7 +35,7 @@ func NewMongoCase(c *mgo.Session, db string) (TestCaseMgnt, error) {
 		DB:       db,
 		collName: testCaseCollName,
 	}
-	c.DB(db).C(img.collName).EnsureIndexKey("user_id", "description", "product", "created_at")
+	c.DB(db).C(img.collName).EnsureIndexKey("user_id", "description", "created_at")
 	return img, nil
 }
 

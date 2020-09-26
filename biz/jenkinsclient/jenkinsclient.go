@@ -39,8 +39,9 @@ type Models struct {
 type Parmeter struct {
 	AnalyzerIoBaseImage string `json:"analyzer_io_base_image" bson:"analyzer_io_base_image"`
 	Branch              string `json:"branch" bson:"branch"`
-	ModelsConfig        Models `json:"models_config" bson:"models_config"`
+	ModelsConfig        string `json:"models_config" bson:"models_config"`
 	AnalyzerType        string `json:"analyzer_type" bson:"analyzer_type"`
+	ImageName           string `json:"image_name"`
 }
 
 type JenkinsClientImp interface {
@@ -89,13 +90,13 @@ func (j *JenkinsClient) BuildJob(p *Parmeter, config Config) (int64, error) {
 		number = b.GetBuildNumber() + 1
 	}
 
-	reqMap := make(map[string]string)
+	reqMap := make(map[string]interface{})
 	reqMap["ANALYZER_IO_BASE_IMAGE"] = p.AnalyzerIoBaseImage
 	reqMap["BRANCH"] = p.Branch
 	data, _ := json.Marshal(p.ModelsConfig)
 	reqMap["MODELS_CONFIG"] = string(data)
 	reqMap["ANALYZER_TYPE"] = p.AnalyzerType
-
+	reqMap["IMAGE_NAME"] = p.ImageName
 	num, err := j.Cli.BuildJob(j.Name, reqMap)
 	fmt.Println(num)
 	return number, nil

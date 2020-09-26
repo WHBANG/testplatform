@@ -1,20 +1,25 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
+	"io"
 	"io/ioutil"
 	"math/big"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"git.supremind.info/product/visionmind/com/flow"
 	client "git.supremind.info/product/visionmind/com/go_sdk"
+	"git.supremind.info/testplatform/biz/service/proto"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -47,6 +52,92 @@ func MiddleWare(cl *Client) gin.HandlerFunc {
 
 }
 
+func Forward01(host, way, param string) (data interface{}, err error) {
+
+	var (
+		urlstr string
+		req    *http.Request
+	)
+	urlstr = "http://" + host + "/" + param
+	if way == "get" {
+		req, err = http.NewRequest("GET", urlstr, nil)
+	} else {
+		req, err = http.NewRequest("POST", urlstr, nil)
+	}
+	if err != nil {
+		log.Println("NewRequest Error: ", err)
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println("Client.Do Error: ", err)
+		return nil, err
+	}
+	var resp proto.GetTaskRes
+	if res != nil {
+		defer res.Body.Close()
+
+		buffer := bytes.NewBuffer(make([]byte, 1024*8))
+		_, err := io.Copy(buffer, res.Body)
+		if err != nil {
+			log.Println("Buffer Capacity Error: ", err)
+			return nil, err
+		}
+		respData := buffer.Bytes()
+		str := strings.Trim(string(respData), "\x00 \n")
+		log.Println(str)
+		err = json.Unmarshal([]byte(str[:len(str)]), &resp)
+		if err != nil {
+			log.Println("Json Unmarshal Error: ", err)
+			return nil, err
+		}
+	}
+	return resp.Data, nil
+}
+
+func Forward02(host, way, param string) (data []proto.JTEventInfo, err error) {
+
+	var (
+		urlstr string
+		req    *http.Request
+	)
+	urlstr = "http://" + host + "/" + param
+	if way == "get" {
+		req, err = http.NewRequest("GET", urlstr, nil)
+	} else {
+		req, err = http.NewRequest("POST", urlstr, nil)
+	}
+	if err != nil {
+		log.Println("NewRequest Error: ", err)
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println("Client.Do Error: ", err)
+		return nil, err
+	}
+	var resp proto.GetJTEventRes
+	if res != nil {
+		defer res.Body.Close()
+
+		buffer := bytes.NewBuffer(make([]byte, 1024*8))
+		_, err := io.Copy(buffer, res.Body)
+		if err != nil {
+			log.Println("Buffer Capacity Error: ", err)
+			return nil, err
+		}
+		respData := buffer.Bytes()
+		str := strings.Trim(string(respData), "\x00 \n")
+		log.Println(str)
+		err = json.Unmarshal([]byte(str[:len(str)]), &resp)
+		if err != nil {
+			log.Println("Json Unmarshal Error: ", err)
+			return nil, err
+		}
+	}
+	return resp.Content, nil
+}
+
 func HostReverseProxy(w http.ResponseWriter, req *http.Request, targetHost *TargetHost) {
 	host := ""
 	if targetHost.IsHTTPS {
@@ -61,6 +152,7 @@ func HostReverseProxy(w http.ResponseWriter, req *http.Request, targetHost *Targ
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(remote)
+
 	if targetHost.IsHTTPS {
 		tls, err := GetVerTLSConfig(targetHost.CAPath)
 		if err != nil {
@@ -81,6 +173,7 @@ func HostReverseProxy(w http.ResponseWriter, req *http.Request, targetHost *Targ
 		}
 		proxy.Transport = pTransport
 	}
+
 	proxy.ServeHTTP(w, req)
 }
 

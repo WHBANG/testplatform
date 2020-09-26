@@ -58,7 +58,6 @@ func (handler *TestCastRouter) InsertTestCaseHandler(c *gin.Context) {
 	tc.UserID = insertReq.UserID
 	tc.TestData = insertReq.TestData
 	tc.Description = insertReq.Description
-	tc.Product = insertReq.Product
 	data, err := t.testcase.Insert(&tc)
 	if err != nil {
 		log.Fatal("insert error!", err)
@@ -143,7 +142,6 @@ func (handler *TestCastRouter) UpdateTestCaseHandler(c *gin.Context) {
 		return
 	}
 	proto.DefaultRet(c, data, err)
-
 }
 
 // @Summary 查找测试用例
@@ -183,8 +181,8 @@ func (handler *TestCastRouter) LikeFindTestCaseHandler(c *gin.Context) {
 	var query []bson.M
 	//query1 := bson.M{"test_data": getReq.TestData}
 	query1 := bson.M{"description": bson.M{"$regex": bson.RegEx{Pattern: getReq.Description, Options: "im"}}}
-	query2 := bson.M{"product": bson.M{"$regex": bson.RegEx{Pattern: getReq.Product, Options: "im"}}}
-	query = []bson.M{query1, query2}
+	//query2 := bson.M{"product": bson.M{"$regex": bson.RegEx{Pattern: getReq.Product, Options: "im"}}}
+	query = []bson.M{query1}
 	if getReq.TestData != nil {
 		query3 := bson.M{"test_data": getReq.TestData}
 		query = append(query, query3)

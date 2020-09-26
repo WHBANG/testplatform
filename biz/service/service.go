@@ -31,14 +31,16 @@ type VMRClient struct {
 	Password       string `json:"password"`
 	GlobalDeviceID string `json:"global_device_id"`
 	NamePrefix     string `json:"name_prefix"`
+	MaxChannel     int    `json:"max_channel"`
 }
 
 type TestPlatformSvc struct {
 	config       *Config
 	imageMgnt    db.ImageMgnt
 	testcaseMgnt db.TestCaseMgnt
-	task         db.TaskMgnt
+	task         db.EngineTaskMgnt
 	model        db.ModelMgnt
+	analyzerType db.AnalyzerMgnt
 }
 
 func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGroup) (*TestPlatformSvc, error) {
@@ -56,12 +58,16 @@ func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGr
 		return nil, err
 	}
 
-	taskMgnt, err := db.NewMongoTask(session, db.GetDBName())
+	taskMgnt, err := db.NewMongoEngineTask(session, db.GetDBName())
 	if err != nil {
 		return nil, err
 	}
 
 	modelMgnt, err := db.NewMongoModel(session, db.GetDBName())
+	if err != nil {
+		return nil, err
+	}
+	analyzerTypeMgnt, err := db.NewMongoAnalyzerType(session, db.GetDBName())
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +78,14 @@ func NewTestPlatformSvc(ctx context.Context, config *Config, group *gin.RouterGr
 		testcaseMgnt: testcaseMgnt,
 		task:         taskMgnt,
 		model:        modelMgnt,
+		analyzerType: analyzerTypeMgnt,
 	}
 
 	ImageHandlerSvc(ctx, imageMgnt, group)
 	TestCaseHandlerSvc(ctx, testcaseMgnt, group)
-	TaskHandlerSvc(ctx, taskMgnt, group, config.VMRClient)
+	TaskHandlerSvc(ctx, taskMgnt, testcaseMgnt, group, config.VMRClient)
 	ModelHandlerSvc(ctx, modelMgnt, group)
+	AnalyzerTypeHandlerSvc(ctx, analyzerTypeMgnt, group)
 
 	//group.GET("/ping", svc.Ping)
 	//group.POST("/image", svc.Ping)

@@ -10,10 +10,10 @@ import (
 type ImageStatus string
 
 const (
-	Created  ImageStatus = "Created"
-	Building ImageStatus = "Building"
-	Done     ImageStatus = "Done"
-	Failed   ImageStatus = "Failed"
+	Created  ImageStatus = "CREATED"
+	Building ImageStatus = "BUILDING"
+	Done     ImageStatus = "DONE"
+	Failed   ImageStatus = "FAILED"
 )
 
 type ImageType string
@@ -46,7 +46,6 @@ type TestCaseInfo struct {
 	TestData    interface{}   `json:"test_data" bson:"test_data"`
 	UserID      int           `json:"user_id" bson:"user_id"`
 	Description string        `json:"description" bson:"description"`
-	Product     string        `json:"product" bson:"product"`
 	CreatedAt   time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at" bson:"updated_at"`
 }
@@ -56,7 +55,7 @@ const (
 	EngineStatusCreated = "CREATED"
 	EngineStatusStarted = "STARTED"
 	EngineStatusFailed  = "FAILED"
-	EngineStatusStoped  = "STOPED"
+	EngineStatusStoped  = "STOPPED"
 )
 
 type EngineDeployInfo struct {
@@ -98,4 +97,34 @@ type ImageTestInfo struct {
 
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
+}
+type ModelNames []string
+
+var (
+	BianJian = ModelNames{
+		"ducha_det.tronmodel",
+		"ducha_cls.tronmodel",
+		"bk_fight.tronmodel",
+	}
+	Massiveflow = ModelNames{
+		"crowd_count_model.tronmodel",
+		"banner_detect_east_model.tronmodel",
+		"banner_detect_od_model.tronmodel",
+		"head_count_model.tronmodel",
+		"fight_classify_local_model.tronmodel",
+		"queue_count_local_model.tronmodel",
+		"crowd_region_count_local_model.tronmodel",
+	}
+	DuCha = ModelNames{
+		"ducha_det.tronmodel",
+		"ducha_cls.tronmodel",
+		"bk_fight.tronmodel",
+	}
+)
+
+type AnalyzerTypeInfo struct {
+	ID            bson.ObjectId `json:"_id" bson:"_id"`
+	AnalyzerType  string        `json:"analyzer_type" bson:"analyzer_type"`
+	ModelNameList ModelNames    `json:"model_name_list" bson:"model_name_list"`
+	CreateTime    time.Time     `json:"create_time" bson:"create_time"`
 }

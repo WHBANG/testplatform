@@ -445,6 +445,10 @@ func (s *EngineTestSvc) GetEngineList(c *gin.Context) {
 }
 
 func (s *EngineTestSvc) CreateTest(c *gin.Context) {
+
+	//1.创建引擎
+	//2.选择testcase并布控
+	//4.
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})

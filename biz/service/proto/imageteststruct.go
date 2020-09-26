@@ -44,3 +44,12 @@ type GetImageRes struct {
 	Total int `json:"total"`
 	Data  []bproto.ImageInfo
 }
+
+type CreateImageReq struct {
+	AnalyzerIOBaseImage string `json:"analyzer_io_base_image"`
+	ModelConfig         string `json:"model_config"`
+	ImageName           string `json:"image_name" `
+	Product      string `json:"product" `
+	Description  string `json:"description"`
+	AnalyzerType string `json:"analyzer_type"`
+}

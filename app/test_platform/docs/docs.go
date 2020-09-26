@@ -33,49 +33,6 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/jenkins/build": {
-            "post": {
-                "description": "do build",
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "build",
-                "parameters": [
-                    {
-                        "description": "Parmeter",
-                        "name": "example",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/jenkinsclient.Parmeter"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/proto.CommonRes"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "additionalProperties": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/jenkins/last": {
             "get": {
                 "description": "show the last successful build number",
@@ -284,11 +241,6 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "name": "product",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
                         "name": "size",
                         "in": "query"
@@ -395,6 +347,152 @@ var doc = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/proto.TestCaseInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/analyzertype": {
+            "post": {
+                "description": "添加analyzerType到数据库中",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新增",
+                "parameters": [
+                    {
+                        "description": "InsertAnalyzerTypeReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.InsertAnalyzerTypeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.AnalyzerTypeInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/analyzertype/": {
+            "get": {
+                "description": "获取所有的analyzertype",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "获取所有",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.AnalyzerTypeInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/analyzertype/{id}": {
+            "get": {
+                "description": "根据ID查找对应的analyzertype",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "查找",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.AnalyzerTypeInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "根据ID删除analyzerType",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.AnalyzerTypeInfo"
                                         }
                                     }
                                 }
@@ -740,18 +838,22 @@ var doc = `{
             }
         },
         "/v1/image/": {
-            "get": {
-                "description": "根据镜像ID在数据库中查找对应的镜像信息",
+            "delete": {
+                "description": "根据输入的镜像ID数组删除数据库中镜像信息",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "查找镜像",
+                "summary": "批量删除",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "id",
-                        "name": "id",
-                        "in": "path",
+                        "name": "list",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -775,24 +877,24 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "根据输入的镜像ID数组删除数据库中镜像信息",
+            }
+        },
+        "/v1/image/create": {
+            "post": {
+                "description": "创建镜像",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "批量删除",
+                "summary": "创建镜像",
                 "parameters": [
                     {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "id",
-                        "name": "list",
-                        "in": "query",
-                        "required": true
+                        "description": "CreateImageReq",
+                        "name": "example",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/proto.CreateImageReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -999,6 +1101,85 @@ var doc = `{
                 }
             }
         },
+        "/v1/image/{id}/find": {
+            "get": {
+                "description": "根据镜像ID在数据库中查找对应的镜像信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "查找镜像",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ImageInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/image/{type}/group/": {
+            "get": {
+                "description": "按镜像类别进行查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "按镜像类别进行查询",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.ImageInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/v1/jt_event/events": {
             "get": {
                 "description": "查询已存在的事件",
@@ -1135,8 +1316,8 @@ var doc = `{
                             "type": "string"
                         },
                         "collectionFormat": "multi",
-                        "description": "id",
-                        "name": "list",
+                        "description": "list_id",
+                        "name": "list_id",
                         "in": "query",
                         "required": true
                     }
@@ -1166,45 +1347,7 @@ var doc = `{
                 }
             }
         },
-        "/v1/model/delete/{id}": {
-            "delete": {
-                "description": "根据模型ID删除数据库中对应的模型",
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "删除模型",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/proto.CommonRes"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/proto.ModelInfo"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/model/id/{id}": {
+        "/v1/model/find/{id}": {
             "get": {
                 "description": "根据模型ID查找对应的模型",
                 "consumes": [
@@ -1242,6 +1385,38 @@ var doc = `{
                 }
             }
         },
+        "/v1/model/group/{type}": {
+            "get": {
+                "description": "根据模型类别获取模型",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "根据模型类别获取模型",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.ProductInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/v1/model/reset": {
             "get": {
                 "description": "重置模型数据库",
@@ -1261,7 +1436,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/proto.GetModelsRes"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.ProductInfo"
+                                            }
                                         }
                                     }
                                 }
@@ -1290,7 +1468,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/proto.GetModelsRes"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/proto.ProductInfo"
+                                            }
                                         }
                                     }
                                 }
@@ -1302,7 +1483,7 @@ var doc = `{
         },
         "/v1/model/{id}": {
             "put": {
-                "description": "根据ID字段查找到对应的模型，并将其更新为新输入的模型信息",
+                "description": "根据ID字段查找到对应的模型，并将其更新",
                 "consumes": [
                     "application/json"
                 ],
@@ -1323,6 +1504,44 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/proto.UpdateModelReq"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/proto.CommonRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/proto.ModelInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/model/{id}/delete": {
+            "delete": {
+                "description": "根据模型ID删除数据库中对应的模型",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除模型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1463,32 +1682,6 @@ var doc = `{
                                     }
                                 }
                             ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "新增一个布控任务到VMR中",
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "创建布控任务",
-                "parameters": [
-                    {
-                        "description": "CreateTaskReq",
-                        "name": "example",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/proto.CreateTaskReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/proto.CommonTaskRes"
                         }
                     }
                 }
@@ -1658,56 +1851,23 @@ var doc = `{
                 }
             }
         },
-        "jenkinsclient.Model": {
+        "proto.AnalyzerTypeInfo": {
             "type": "object",
             "properties": {
-                "banner_detect_east_model.tronmodel": {
-                    "type": "string"
-                },
-                "banner_detect_od_model.tronmodel": {
-                    "type": "string"
-                },
-                "crowd_count_model.tronmodel": {
-                    "type": "string"
-                },
-                "crowd_region_count_local_model.tronmodel": {
-                    "type": "string"
-                },
-                "fight_classify_local_model.tronmodel": {
-                    "type": "string"
-                },
-                "head_count_model.tronmodel": {
-                    "type": "string"
-                },
-                "queue_count_local_model.tronmodel": {
-                    "type": "string"
-                }
-            }
-        },
-        "jenkinsclient.Models": {
-            "type": "object",
-            "properties": {
-                "models": {
-                    "type": "object",
-                    "$ref": "#/definitions/jenkinsclient.Model"
-                }
-            }
-        },
-        "jenkinsclient.Parmeter": {
-            "type": "object",
-            "properties": {
-                "analyzer_io_base_image": {
+                "_id": {
                     "type": "string"
                 },
                 "analyzer_type": {
                     "type": "string"
                 },
-                "branch": {
+                "create_time": {
                     "type": "string"
                 },
-                "models_config": {
-                    "type": "object",
-                    "$ref": "#/definitions/jenkinsclient.Models"
+                "model_name_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1790,69 +1950,25 @@ var doc = `{
                 }
             }
         },
-        "proto.CreateTaskReq": {
+        "proto.CreateImageReq": {
             "type": "object",
             "properties": {
-                "analyze_config": {
-                    "description": "模型参数",
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "extra": {
-                    "description": "为业务方保留的自定义字段",
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "id": {
-                    "description": "任务id, 必须全局唯一",
+                "analyzer_io_base_image": {
                     "type": "string"
                 },
-                "name": {
-                    "description": "名称",
+                "analyzer_type": {
                     "type": "string"
                 },
-                "read_stream_url": {
-                    "description": "读流地址, 提供前端辅助使用",
+                "description": {
                     "type": "string"
                 },
-                "region": {
-                    "description": "区域",
+                "image_name": {
                     "type": "string"
                 },
-                "snapshot": {
-                    "description": "布控截图",
+                "model_config": {
                     "type": "string"
                 },
-                "status": {
-                    "description": "任务状态",
-                    "type": "string"
-                },
-                "stream_id": {
-                    "description": "StreamID来自device-api, 前端可以匹配到摄像头名称",
-                    "type": "string"
-                },
-                "stream_list": {
-                    "description": "多个摄像头",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/proto.StreamSetting"
-                    }
-                },
-                "stream_on": {
-                    "description": "是否需要推流",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "任务类型",
-                    "type": "string"
-                },
-                "work_field": {
-                    "description": "任务运行字段",
-                    "type": "object",
-                    "$ref": "#/definitions/proto.WorkField"
-                },
-                "write_stream_url": {
-                    "description": "推流地址, 提供前端辅助使用",
+                "product": {
                     "type": "string"
                 }
             }
@@ -1867,8 +1983,13 @@ var doc = `{
                     "type": "string"
                 },
                 "pts": {
-                    "type": "object",
-                    "$ref": "#/definitions/proto.PTS"
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
                 },
                 "scene": {
                     "type": "string"
@@ -1901,7 +2022,6 @@ var doc = `{
                     "type": "string"
                 },
                 "job_info": {
-                    "type": "object",
                     "$ref": "#/definitions/analyzerclient.JobInfo"
                 },
                 "product": {
@@ -1939,30 +2059,6 @@ var doc = `{
                 }
             }
         },
-        "proto.GetEngineReq": {
-            "type": "object",
-            "properties": {
-                "image": {
-                    "type": "string"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "product": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "enginestatus",
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "proto.GetEngineRes": {
             "type": "object",
             "properties": {
@@ -1979,29 +2075,6 @@ var doc = `{
                     "type": "integer"
                 },
                 "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "proto.GetImageReq": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "product": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "user_id": {
                     "type": "integer"
                 }
             }
@@ -2045,35 +2118,6 @@ var doc = `{
                     "type": "integer"
                 },
                 "total_page": {
-                    "type": "integer"
-                }
-            }
-        },
-        "proto.GetModelsRes": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/proto.ProductInfo"
-            }
-        },
-        "proto.GetTestCaseReq": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "product": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "test_data": {
-                    "type": "object"
-                },
-                "user_id": {
                     "type": "integer"
                 }
             }
@@ -2122,6 +2166,12 @@ var doc = `{
                 "product": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -2141,12 +2191,23 @@ var doc = `{
                 }
             }
         },
+        "proto.InsertAnalyzerTypeReq": {
+            "type": "object",
+            "properties": {
+                "analyzer_type": {
+                    "type": "string"
+                },
+                "model_name_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "proto.InsertImageReq": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
                 },
@@ -2162,6 +2223,9 @@ var doc = `{
                 "product": {
                     "type": "string"
                 },
+                "type": {
+                    "type": "string"
+                },
                 "user_id": {
                     "type": "integer"
                 }
@@ -2170,6 +2234,9 @@ var doc = `{
         "proto.InsertModelReq": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "model_id": {
                     "type": "integer"
                 },
@@ -2181,6 +2248,12 @@ var doc = `{
                 },
                 "model_url": {
                     "type": "string"
+                },
+                "model_user": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
                 }
             }
         },
@@ -2188,9 +2261,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
-                },
-                "product": {
                     "type": "string"
                 },
                 "test_data": {
@@ -2226,7 +2296,6 @@ var doc = `{
                     "type": "string"
                 },
                 "eventExtra": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.EventExtra"
                 },
                 "eventId": {
@@ -2245,15 +2314,12 @@ var doc = `{
                     "type": "string"
                 },
                 "indexData": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.IndexData"
                 },
                 "mark": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.Mark"
                 },
                 "originalConfig": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.OriginalConfig"
                 },
                 "originalViolationIndex": {
@@ -2275,7 +2341,6 @@ var doc = `{
                     "type": "string"
                 },
                 "summary": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.Summary"
                 },
                 "taskId": {
@@ -2294,9 +2359,6 @@ var doc = `{
                     "type": "object"
                 }
             }
-        },
-        "proto.LocalTime": {
-            "$ref": "#/definitions/time.Time"
         },
         "proto.Mark": {
             "type": "object",
@@ -2324,6 +2386,9 @@ var doc = `{
         "proto.Model": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "model_id": {
                     "type": "integer"
                 },
@@ -2335,6 +2400,12 @@ var doc = `{
                 },
                 "model_url": {
                     "type": "string"
+                },
+                "model_user": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
                 }
             }
         },
@@ -2345,8 +2416,7 @@ var doc = `{
                     "type": "string"
                 },
                 "complete_time": {
-                    "type": "object",
-                    "$ref": "#/definitions/proto.LocalTime"
+                    "type": "string"
                 },
                 "model_id": {
                     "type": "integer"
@@ -2424,8 +2494,13 @@ var doc = `{
             "type": "object",
             "properties": {
                 "rois": {
-                    "type": "object",
-                    "$ref": "#/definitions/proto.Rois"
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
                 },
                 "stream_push_address": {
                     "type": "string"
@@ -2435,15 +2510,6 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/proto.Violation"
                     }
-                }
-            }
-        },
-        "proto.PTS": {
-            "type": "array",
-            "items": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
                 }
             }
         },
@@ -2461,15 +2527,6 @@ var doc = `{
                 },
                 "product_name": {
                     "type": "string"
-                }
-            }
-        },
-        "proto.Rois": {
-            "type": "array",
-            "items": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
                 }
             }
         },
@@ -2495,12 +2552,16 @@ var doc = `{
                     "type": "integer"
                 },
                 "origin": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.Origi"
                 },
                 "pts": {
-                    "type": "object",
-                    "$ref": "#/definitions/proto.PTS"
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
                 },
                 "score": {
                     "type": "integer"
@@ -2548,11 +2609,9 @@ var doc = `{
             "type": "object",
             "properties": {
                 "class": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.ClassDetect"
                 },
                 "detect": {
-                    "type": "object",
                     "$ref": "#/definitions/proto.ClassDetect"
                 }
             }
@@ -2635,7 +2694,6 @@ var doc = `{
                 },
                 "work_field": {
                     "description": "任务运行字段",
-                    "type": "object",
                     "$ref": "#/definitions/proto.WorkField"
                 }
             }
@@ -2650,9 +2708,6 @@ var doc = `{
                     "type": "string"
                 },
                 "description": {
-                    "type": "string"
-                },
-                "product": {
                     "type": "string"
                 },
                 "test_data": {
@@ -2712,7 +2767,6 @@ var doc = `{
                     "type": "string"
                 },
                 "image": {
-                    "description": "ID          bson.ObjectId ` + "`" + `json:\"_id,omitempty\"` + "`" + `",
                     "type": "string"
                 },
                 "models": {
@@ -2724,6 +2778,9 @@ var doc = `{
                 "product": {
                     "type": "string"
                 },
+                "type": {
+                    "type": "string"
+                },
                 "user_id": {
                     "type": "integer"
                 }
@@ -2732,6 +2789,9 @@ var doc = `{
         "proto.UpdateModelReq": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "model_id": {
                     "type": "integer"
                 },
@@ -2742,6 +2802,12 @@ var doc = `{
                     "type": "string"
                 },
                 "model_url": {
+                    "type": "string"
+                },
+                "model_user": {
+                    "type": "string"
+                },
+                "model_version": {
                     "type": "string"
                 }
             }
@@ -2777,9 +2843,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
-                },
-                "product": {
                     "type": "string"
                 },
                 "test_data": {

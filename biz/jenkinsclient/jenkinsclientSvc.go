@@ -2,6 +2,7 @@ package jenkinsclient
 
 import (
 	"context"
+	"errors"
 	"strconv"
 
 	"git.supremind.info/testplatform/biz/service/proto"
@@ -69,6 +70,7 @@ func JenkinsClientGetLastBuildResultHandler(c *gin.Context) {
 	}
 }
 
+/*
 // @Summary build
 // @Description do build
 // @Accept json
@@ -96,6 +98,42 @@ func JenkinsClientBuildHandler(c *gin.Context) {
 	log.Println("this time build job id: ", id)
 
 }
+*/
+
+func JenkinsClientBuildHandler(reqJSON *Parmeter) (int64, error) {
+
+	id, err := Jc.BuildJob(reqJSON, Jc.config)
+	if err != nil {
+		log.Println("build job error! ", err)
+		return -1, err
+	}
+	return id, err
+}
+
+func GetBuildResultHandler(id int64) (int64, error) {
+
+	job, err := Jc.Cli.GetJob(Jc.Name)
+	if err != nil {
+		log.Println("get job ", Jc.Name, "error:", err)
+		return -1, err
+	}
+	build, err := job.GetBuild(id)
+	if err != nil {
+		log.Println("this build is wrong or not exist! ", err)
+		return -1, err
+	}
+	if "" == build.GetResult() {
+		log.Println("building, please wait a moment")
+		return 0, nil
+	} else {
+		if build.GetResult() == "SUCCESS" {
+			return id, nil
+		} else {
+			err = errors.New("build failed")
+			return -1, err
+		}
+	}
+}
 
 func JenkinsClientSvc(ctx context.Context, group *gin.RouterGroup, conf Config) {
 
@@ -105,6 +143,6 @@ func JenkinsClientSvc(ctx context.Context, group *gin.RouterGroup, conf Config) 
 		return
 	}
 	group.GET("/jenkins/show/:number", JenkinsClientShowBuildResultHandler)
-	group.POST("/jenkins/build", JenkinsClientBuildHandler)
+	//group.POST("/jenkins/build", JenkinsClientBuildHandler)
 	group.GET("/jenkins/last", JenkinsClientGetLastBuildResultHandler)
 }

@@ -5,11 +5,8 @@ import (
 )
 
 const (
-	DefaultErrorCode = 1
+	DefaultErrorCode = -1
 )
-
-type CreateTestReq struct {
-}
 
 type CreateEngineReq struct {
 	Image          string `json:"image" example:"reg.supremind.info/products/vas/vas-app/analyzer:cuda10-20200604-16108" `

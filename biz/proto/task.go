@@ -1,7 +1,6 @@
 package proto
 
 import (
-	"context"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -16,6 +15,8 @@ type AnalyzeSummary struct {
 	RawData   interface{} `json:"-"`
 }
 
+//type Task flow.Task
+/*
 type Task struct {
 	ID            string                 `json:"id" bson:"id"`                         // 任务id, 必须全局唯一
 	Name          string                 `json:"name" bson:"name"`                     //名称
@@ -43,7 +44,7 @@ type Task struct {
 
 	Weight int `json:"weight" bson:"weight"` // 权重
 }
-
+*/
 type StreamSetting struct {
 	StreamID       string `json:"stream_id" bson:"stream_id"`          // StreamID来自device-api, 前端可以匹配到摄像头名称
 	Snapshot       string `json:"snapshot" bson:"snapshot"`            // 布控截图
@@ -124,4 +125,27 @@ type TaskInfo struct {
 	Ver           int64                  `json:"ver" bson:"ver"`               // 版本
 	CreatedAt     time.Time              `json:"created_at" bson:"created_at"` // 创建时间
 	IsDelete      bool                   `json:"is_deleted" bson:"is_deleted"`
+}
+
+type TaskStatus string
+
+const (
+	TaskRunning TaskStatus = "RUNNING"
+	TaskStopped TaskStatus = "STOPPED"
+)
+
+type EngineTaskInfo struct {
+	EngineID    string     `bson:"engine_id" json:"engine_id"`
+	TaskID      string     `bson:"task_id" json:"task_id"`
+	TestCaseID  string     `bson:"testcase_id" json:"testcase_id"`
+	Status      string     `bson:"status" json:"status"`
+	TaskStatuss TaskStatus `bson:"task_status" json:"task_status"`
+}
+
+type EventInfo struct {
+	EngineID   string `bson:"engine_id" json:"engine_id"`
+	TaskID     string `bson:"task_id" json:"task_id"`
+	TestCaseID string `bson:"testcase_id" json:"testcase_id"`
+	EventID    string `bson:"event_id" json:"event_id"`
+	Result     string `bson:"result" json:"result"`
 }

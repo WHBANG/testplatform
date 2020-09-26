@@ -3,6 +3,7 @@ package proto
 import (
 	"time"
 
+	"git.supremind.info/product/visionmind/com/flow"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -10,7 +11,7 @@ type EventData map[string]interface{}
 
 type MetaData struct {
 	Case  *MetaCase   `json:"case"`
-	Task  *Task       `json:"task"`
+	Task  *flow.Task  `json:"task"`
 	Event []EventData `json:"event"`
 	Files *FileCase   `json:"files"`
 }
@@ -32,7 +33,6 @@ type TestCase struct {
 	TestData    *MetaData     `json:"test_data" bson:"test_data"`
 	UserID      int           `json:"user_id" bson:"user_id"`
 	Description string        `json:"description" bson:"description"`
-	Product     string        `json:"product" bson:"product"`
 	CreatedAt   time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at" bson:"updated_at"`
 }
